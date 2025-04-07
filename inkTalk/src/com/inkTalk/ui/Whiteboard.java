@@ -42,7 +42,8 @@ public class Whiteboard extends JPanel implements ActionListener, MouseListener,
     JButton clearall;
     JButton drawsave;
     public JButton walkout;
-
+    Client_collapse parent;
+    
     Color currentColor = Color.BLACK;
     int currentThickness = 2;
 
@@ -52,7 +53,7 @@ public class Whiteboard extends JPanel implements ActionListener, MouseListener,
     ArrayList<Stroke> strokes = new ArrayList<>();
     Stroke currentStroke = null;
 
-    public Whiteboard() {
+    public Whiteboard(Client_collapse parent) {
     	//소켓 열어두기
     	try {
 			socket = new Socket("172.30.1.31", 5555);
@@ -62,6 +63,7 @@ public class Whiteboard extends JPanel implements ActionListener, MouseListener,
 		}
     	
     	//--------------------------------------
+    	this.parent = parent;
     	setLayout(new BorderLayout());
     	setPreferredSize(new Dimension(800, 800));
 
@@ -116,10 +118,6 @@ public class Whiteboard extends JPanel implements ActionListener, MouseListener,
             Image img = icon.getImage().getScaledInstance(width, height, Image.SCALE_SMOOTH);
             return new ImageIcon(img);
         }
-    public static void main(String[] args) {
-    	 SwingUtilities.invokeLater(Whiteboard::new);
-    }//EDT에서 실행
-
 
     // 그리기 패널
     class DrawCanvas extends JPanel {
@@ -253,8 +251,7 @@ public class Whiteboard extends JPanel implements ActionListener, MouseListener,
             //원래는 해당 채팅방 이름을 가져와야 하는데 이걸...DB에서 가져오고 난 후에 해야 할듯 
             //방장/다른 참가자 다르게 띄우는건 소켓 연결하고 나서ㅜ
             if (exit == JOptionPane.OK_OPTION) {
-                Client_collapse clinetshow = new Client_collapse();
-                clinetshow.dispose();
+            	parent.dispose();
                 
             }
         }

@@ -25,7 +25,7 @@ public class Client_collapse extends JFrame implements ActionListener{
 	loginui = new LoginUi();
 	draw_chat = new JPanel(new BorderLayout());
 	
-	whiteboard = new Whiteboard();
+	whiteboard = new Whiteboard(this);
 	Chatboard chatting = new Chatboard();
 	draw_chat.add(whiteboard, BorderLayout.CENTER);
 	draw_chat.add(chatting, BorderLayout.EAST);

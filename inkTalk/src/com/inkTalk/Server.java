@@ -10,7 +10,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class Server {
-	//µé¾î¿Â µ¥ÀÌÅÍµéÀ» Áßº¹ÀÌ ¾øµµ·Ï set¿¡ ¸ð¾ÆµÒ
     private static Set<ObjectOutputStream> clientOutputs = new HashSet<>();
 
     private static class ClientHandler implements Runnable {
@@ -32,14 +31,14 @@ public class Server {
 
         @Override
         public void run() {
-        	System.out.println("½ÇÇà...");
+        	System.out.println("ï¿½ï¿½ï¿½ï¿½...");
         	
 			try {
 				while(true) {
 					Object object = in.readObject();
 	        		if(object instanceof Stroke) {
 	        			Stroke stroke = (Stroke)object;
-	        			System.out.println("¹ÞÀº Stroke:"+stroke);
+	        			System.out.println("ï¿½ï¿½ï¿½ï¿½ Stroke:"+stroke);
 	        		}
 				}
 
@@ -79,13 +78,13 @@ public class Server {
     }
 
     public static void main(String[] args) {
-        System.out.println("¼­¹ö°¡ ½ÃÀÛµÇ¾ú½À´Ï´Ù.");
+        System.out.println("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ÛµÇ¾ï¿½ï¿½ï¿½ï¿½Ï´ï¿½.");
         ServerSocket serverSocket;
 		try {
 			serverSocket = new ServerSocket(5555);
             while (true) {
                 Socket socket = serverSocket.accept();
-                System.out.println("Å¬¶óÀÌ¾ðÆ® ¿¬°áµÊ: " + socket.getInetAddress());
+                System.out.println("Å¬ï¿½ï¿½ï¿½Ì¾ï¿½Æ® ï¿½ï¿½ï¿½ï¿½ï¿½: " + socket.getInetAddress());
 
                 new Thread(new ClientHandler(socket)).start();
             }
