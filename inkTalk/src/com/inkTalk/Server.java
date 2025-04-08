@@ -8,6 +8,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
 public class Server implements Runnable {
 	private static final List<ObjectOutputStream> clients = Collections.synchronizedList(new ArrayList<>());
 	private static List<Stroke> drawData = new ArrayList<>();
@@ -21,6 +22,7 @@ public class Server implements Runnable {
 			out = new ObjectOutputStream(socket.getOutputStream());
 			out.flush();
 			in = new ObjectInputStream(socket.getInputStream());
+
 			clients.add(out);
 
 			for (Stroke stroke : drawData) {
@@ -28,7 +30,7 @@ public class Server implements Runnable {
 				out.flush();
 			}
 		} catch (IOException e) {
-			throw new RuntimeException(e);
+			e.printStackTrace();
 		}
 	}
 
@@ -40,7 +42,9 @@ public class Server implements Runnable {
 				drawData.add(stroke);
 				broadcast(stroke);
 			}
-		} catch (IOException | ClassNotFoundException e) {
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}
 	}
@@ -58,10 +62,12 @@ public class Server implements Runnable {
 
 	public static void main(String[] args) {
 		ServerSocket serverSocket = null;
+
 		try {
 			serverSocket = new ServerSocket(5555);
 			while (true) {
 				Socket socket = serverSocket.accept();
+				System.out.println("클라이언트 접속됨: " + socket.getInetAddress());
 				new Thread(new Server(socket)).start();
 			}
 		} catch (IOException e) {

@@ -5,6 +5,7 @@ import java.awt.CardLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
@@ -22,6 +23,8 @@ public class ClientMain extends JFrame implements ActionListener {
 	private static String userNickName;
 
 	public ClientMain() {
+		InputStream is = null;
+
 		try {
 			socket = new Socket("172.30.1.31", 5555);
 		} catch (UnknownHostException e) {
@@ -39,6 +42,7 @@ public class ClientMain extends JFrame implements ActionListener {
 		JPanel drawChat = new JPanel(new BorderLayout());
 		whiteboard = new Whiteboard(this, socket);
 		Chatboard chatBoard = new Chatboard(socket,userNickName);
+
 		drawChat.add(whiteboard, BorderLayout.CENTER);
 		drawChat.add(chatBoard, BorderLayout.EAST);
 
