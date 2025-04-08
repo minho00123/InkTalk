@@ -27,7 +27,9 @@ import javax.swing.JPanel;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
 
-import com.inkTalk.Stroke;
+import com.inkTalk.app.AppController;
+import com.inkTalk.domain.Canvas;
+import com.inkTalk.domain.Stroke;
 
 public class Whiteboard extends JPanel implements ActionListener, MouseListener, MouseMotionListener {
 	private ObjectOutputStream out = null;
@@ -37,7 +39,7 @@ public class Whiteboard extends JPanel implements ActionListener, MouseListener,
 
 	ArrayList<Stroke> strokes = new ArrayList<>();
 	Stroke currentStroke = null;
-	ClientMain main;
+	AppController main;
 	Canvas canvas;
 	JButton thickness;
 	JButton palette;
@@ -47,7 +49,7 @@ public class Whiteboard extends JPanel implements ActionListener, MouseListener,
 	Color currentColor = Color.BLACK;
 	int currentThickness = 2;
 
-	public Whiteboard(ClientMain main, Socket socket) {
+	public Whiteboard(AppController appController, Socket socket) {
 		try {
 			out = new ObjectOutputStream(socket.getOutputStream());
 			out.flush();
@@ -83,7 +85,7 @@ public class Whiteboard extends JPanel implements ActionListener, MouseListener,
 			throw new RuntimeException(e);
 		}
 
-		this.main = main;
+		this.main = appController;
 		setLayout(new BorderLayout());
 		setPreferredSize(new Dimension(800, 800));
 

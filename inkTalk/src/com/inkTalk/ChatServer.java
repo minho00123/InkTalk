@@ -9,6 +9,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import com.inkTalk.domain.Message;
+import com.inkTalk.domain.Stroke;
+
 public class ChatServer implements Runnable{
 	private static final List<ObjectOutputStream> clients = new ArrayList<>();
 	private static final List<Stroke> drawData = new ArrayList<Stroke>();

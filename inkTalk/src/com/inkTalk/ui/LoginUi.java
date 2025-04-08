@@ -25,19 +25,23 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
+import com.inkTalk.app.AppController;
+import com.inkTalk.domain.User;
 import com.inkTalk.jdbc.JDBCTemplate;
 
 public class LoginUi extends JPanel implements ActionListener{
 	private PreparedStatement pstmt;
 	private ResultSet rs;
 	
-	private String nickName;
+	private AppController controller;
 	public JButton loginButton, signUpButton;
 	JTextField idField;
 	JPasswordField pwField;
 	JLabel error;
-	
-    public LoginUi() {
+
+    public LoginUi(AppController controller) {
+    	this.controller = controller;
+
     	setLayout(new BorderLayout());
     	this.setPreferredSize(new Dimension(1200, 800));
     	
@@ -132,12 +136,13 @@ public class LoginUi extends JPanel implements ActionListener{
        
     }
 
+
 	@Override
 	public void actionPerformed(ActionEvent e) {
-
+		//로그인
 		if(e.getSource()==loginButton) {
 			String pw = new String(pwField.getPassword());
-			nickName = new String(idField.getText());
+			String nickName = new String(idField.getText());
 			
 			//jdbc 연결
 			Connection conn = JDBCTemplate.getConnection();
@@ -147,21 +152,23 @@ public class LoginUi extends JPanel implements ActionListener{
 				pstmt.setString(1, nickName);
 				pstmt.setString(2, pw);
 				rs = pstmt.executeQuery();
-				if(rs != null&& !rs.next()) {
-					this.nickName = rs.getString("NICKNAME");
+				
+				if(rs != null&& rs.next()) {
+					int userId = rs.getInt("USER_ID"); //유저아이디 컬럼명 먼지 확인
+					User user = new User(userId, nickName);
+					controller.loginSuccess(user);
 				}else {//로그인 실패
 					System.out.println("로그인 실패");
+					error.setText("닉네임 또는 비밀번호가 올바르지 않습니다.");// 어디 뜨는 에러야
+
 				}
 			} catch (SQLException e1) {
 				e1.printStackTrace();
 			}
-		}else {
-			//회원가입 버튼
+		}else if(e.getSource() == signUpButton){
+			
 		}
 	}
-	public String getUserNickName() {
-		return nickName;
-		
-	}
+
 }
   
