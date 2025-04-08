@@ -5,12 +5,9 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
 
 import javax.swing.JButton;
@@ -21,17 +18,21 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
+import com.inkTalk.Message;
+
 public class Chatboard extends JPanel implements ActionListener {
 	JTextArea chatArea;
 	JTextField inputField;
 	JButton sendButton;
 
-	static BufferedWriter bw = null;
-	static BufferedReader br = null;
+	ObjectOutputStream oos = null;
 	String msg;
-
-	public Chatboard(Socket socket) {
-
+	String nickName;
+	Socket socket;
+	public Chatboard(Socket socket, String nickName) {
+		this.nickName = nickName;
+		this.socket = socket;
+		
 		setLayout(new BorderLayout());
 		setPreferredSize(new Dimension(300, 800));
 		JPanel chatPanel = new JPanel(new BorderLayout());
@@ -45,7 +46,7 @@ public class Chatboard extends JPanel implements ActionListener {
 		inputField = new JTextField();
 
 		inputField.setBackground(new Color(169, 168, 217));
-		sendButton = new JButton("����");
+		sendButton = new JButton("전송");
 		sendButton.setBackground(new Color(1, 13, 38));
 		sendButton.setForeground(Color.WHITE);
 		sendButton.addActionListener(this);
@@ -57,8 +58,15 @@ public class Chatboard extends JPanel implements ActionListener {
 		this.add(chatPanel, BorderLayout.CENTER);
 		this.add(inputPanel, BorderLayout.SOUTH);
 
-		startReceivingMessages(socket);
+		
+		
+		try {
+			oos = new ObjectOutputStream(socket.getOutputStream());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 
+		startReceivingMessages(socket);
 	}
 
 	public void actionPerformed(ActionEvent e) {
@@ -66,13 +74,12 @@ public class Chatboard extends JPanel implements ActionListener {
 		String msg = inputField.getText();
 		if (!msg.isEmpty()) {
 			try {
-				synchronized (bw) {
-					bw.write(msg);
-					bw.newLine();
-					bw.flush();
-				}
-
+				Message message = new Message(nickName, msg);
+				oos.writeObject(message);
+				oos.flush();
+				
 				inputField.setText("");
+				inputField.setText(" ");
 				chatArea.revalidate();
 			} catch (IOException e1) {
 				e1.printStackTrace();
@@ -84,18 +91,24 @@ public class Chatboard extends JPanel implements ActionListener {
 	private void startReceivingMessages(Socket socket) {
 		new Thread(() -> {
 			try {
-				br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-
-				while ((msg = br.readLine()) != null) {
+				ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
+				while (true) {
 					// 서버로부터 받은 메시지를 chatArea에 출력
-					SwingUtilities.invokeLater(() -> {
-						chatArea.append(msg + "\n");
-						chatArea.revalidate();
-					});
+					Object receivedObject = ois.readObject();
+					if(receivedObject instanceof Message) {
+						Message msg = (Message)receivedObject;
+						SwingUtilities.invokeLater(() -> {
+							chatArea.append(msg.getNickName()+" : "+msg.getMsg()+ "\n"); //이름 : 내용으로 보내기
+							chatArea.revalidate();
+						});
+					}
+
 				}
 			} catch (IOException e1) {
-				JOptionPane.showMessageDialog(this, "서버와 연결에 문제가 발생했습니다.");
+//				JOptionPane.showMessageDialog(this, "서버와 연결에 문제가 발생했습니다.");
 				e1.printStackTrace();
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
 			}
 		}).start();
 	}
@@ -105,12 +118,10 @@ public class Chatboard extends JPanel implements ActionListener {
 	 */
 	public void closeConnection() {
 		try {
-			if (bw != null) {
-				bw.close();
+			if (oos != null) {
+				oos.close();
 			}
-			if (br != null) {
-				br.close();
-			}
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
