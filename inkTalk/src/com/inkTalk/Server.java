@@ -1,98 +1,106 @@
 package com.inkTalk;
 
-import com.inkTalk.Stroke;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
-public class Server {
-    private static Set<ObjectOutputStream> clientOutputs = new HashSet<>();
+public class Server implements Runnable {
+	private static final long serialVersionUID = 1L;
 
-    private static class ClientHandler implements Runnable {
-        private Socket socket;
-        private ObjectOutputStream out;
-        private ObjectInputStream in;
+	private static List<ObjectOutputStream> clients = new ArrayList<>();
+	private static List<Stroke> drawData = new ArrayList<>();
+	private Socket socket;
+	private ObjectOutputStream out;
+	private ObjectInputStream in;
 
-        public ClientHandler(Socket socket) {
-            this.socket = socket;
-            
-            try {
-                in = new ObjectInputStream(socket.getInputStream());
-                out = new ObjectOutputStream(socket.getOutputStream());
+	public Server(Socket socket) {
+		this.socket = socket;
 
-            } catch (IOException e) {
-                e.printStackTrace();
-            } 
-        }
-
-        @Override
-        public void run() {
-        	System.out.println("����...");
-        	
-			try {
-				while(true) {
-					Object object = in.readObject();
-	        		if(object instanceof Stroke) {
-	        			Stroke stroke = (Stroke)object;
-	        			System.out.println("���� Stroke:"+stroke);
-	        		}
-				}
-
-			} catch (ClassNotFoundException | IOException e) {
-					e.printStackTrace();
-        	}
-        	
-
-        }
-
-        private void broadcastStroke(Stroke stroke) {
-            synchronized (clientOutputs) {
-                for (ObjectOutputStream clientOut : clientOutputs) {
-                    try {
-                        clientOut.writeObject(stroke);
-                        clientOut.flush();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }finally {
-                        try {
-                            if (in != null) {
-                                in.close();
-                            }
-                            if (out != null) {
-                                out.close();
-                            }
-                            if (socket != null) {
-                                socket.close();
-                            }
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    public static void main(String[] args) {
-        System.out.println("������ ���۵Ǿ����ϴ�.");
-        ServerSocket serverSocket;
 		try {
-			serverSocket = new ServerSocket(5555);
-            while (true) {
-                Socket socket = serverSocket.accept();
-                System.out.println("Ŭ���̾�Ʈ �����: " + socket.getInetAddress());
+			out = new ObjectOutputStream(socket.getOutputStream());
+			out.flush();
+			in = new ObjectInputStream(socket.getInputStream());
 
-                new Thread(new ClientHandler(socket)).start();
-            }
+			synchronized (clients) {
+				clients.add(out); // register client
+			}
+
+			synchronized (drawData) {
+				for (Stroke stroke : drawData) {
+					out.writeObject(stroke);
+					out.flush();
+				}
+			}
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@Override
+	public void run() {
+		try {
+			while (true) {
+				Stroke stroke = (Stroke) in.readObject();
+				synchronized (drawData) {
+					drawData.add(stroke);
+				}
+				broadcast(stroke);
+			}
+		} catch (IOException | ClassNotFoundException e) {
+			e.printStackTrace();
+		} finally {
+			cleanup();
+		}
+	}
+
+	private void broadcast(Stroke stroke) {
+		synchronized (clients) {
+			clients.removeIf(client -> {
+				try {
+					client.writeObject(stroke);
+					client.flush();
+					return false;
+				} catch (IOException e) {
+					// Remove dead client
+					return true;
+				}
+			});
+		}
+		System.out.println("Broadcasting stroke to " + clients.size() + " clients.");
+	}
+
+	private void cleanup() {
+		synchronized (clients) {
+			clients.remove(out);
+		}
+		try {
+			if (socket != null)
+				socket.close();
+			if (in != null)
+				in.close();
+			if (out != null)
+				out.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
 
-
-    }
+	public static void main(String[] args) {
+		System.out.println("서버 시작");
+		ServerSocket serverSocket;
+		try {
+			serverSocket = new ServerSocket(5555);
+			while (true) {
+				Socket socket = serverSocket.accept();
+				Thread thread = new Thread(new Server(socket));
+				thread.start();
+			}
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
 }
-
