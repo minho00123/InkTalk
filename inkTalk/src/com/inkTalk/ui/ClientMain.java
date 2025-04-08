@@ -20,12 +20,13 @@ public class ClientMain extends JFrame implements ActionListener {
 	LoginUi loginUi;
 	CardLayout cardLayout;
 	Whiteboard whiteboard;
+	private static String userNickName;
 
 	public ClientMain() {
 		InputStream is = null;
 
 		try {
-			socket = new Socket("172.30.1.22", 5555);
+			socket = new Socket("172.30.1.31", 5555);
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -37,9 +38,11 @@ public class ClientMain extends JFrame implements ActionListener {
 		masterBoard.setLayout(cardLayout);
 
 		loginUi = new LoginUi();
+		userNickName =loginUi.getUserNickName();
 		JPanel drawChat = new JPanel(new BorderLayout());
 		whiteboard = new Whiteboard(this, socket);
-		Chatboard chatBoard = new Chatboard(socket);
+		Chatboard chatBoard = new Chatboard(socket,userNickName);
+
 		drawChat.add(whiteboard, BorderLayout.CENTER);
 		drawChat.add(chatBoard, BorderLayout.EAST);
 
@@ -61,6 +64,7 @@ public class ClientMain extends JFrame implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
+		System.out.println(e.toString());
 		if (e.getSource() == loginUi.loginButton) {
 			cardLayout.show(masterBoard, "drawChat");
 		} else if (e.getSource() == whiteboard.exit) {

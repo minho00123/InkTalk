@@ -51,7 +51,7 @@ public class Whiteboard extends JPanel implements ActionListener, MouseListener,
 		try {
 			out = new ObjectOutputStream(socket.getOutputStream());
 			out.flush();
-			in = new ObjectInputStream(is);
+			in = new ObjectInputStream(socket.getInputStream());
 
 			Thread thread = new Thread(new Runnable() {
 

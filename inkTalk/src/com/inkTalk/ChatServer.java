@@ -50,7 +50,9 @@ public class ChatServer implements Runnable{
 				while(true) {
 					Object receivedObject;
 					receivedObject = in.readObject();
+					System.out.println(receivedObject.toString());
 					if(receivedObject instanceof Stroke) {
+						System.out.println("@@Stoke@@");
 						//1) 읽어낸 객체가 Stoke인 경우
 						Stroke stroke = (Stroke)receivedObject;
 						synchronized (drawData) {
@@ -58,6 +60,7 @@ public class ChatServer implements Runnable{
 						}
 						broadCastStroke(stroke,clients);
 					}else if(receivedObject instanceof Message) {
+						System.out.println("@@msg@@");
 						//2) 읽어낸 객체가 Message인 경우
 						Message msg = (Message)receivedObject;
 						broadCastMsg(msg,clients);
