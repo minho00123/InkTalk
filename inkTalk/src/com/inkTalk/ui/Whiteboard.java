@@ -15,8 +15,6 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
-import java.io.Serializable;
-import java.net.InetAddress;
 import java.net.Socket;
 import java.util.ArrayList;
 
@@ -199,20 +197,19 @@ public class Whiteboard extends JPanel implements ActionListener, MouseListener,
 	}
 
 	@Override
-	public void mouseDragged(MouseEvent e) {
-		if (currentStroke != null) {
-			currentStroke.addPoint(e.getPoint());
-			canvas.repaint();
-			sendStrokeToServer(currentStroke);
-		}
-	}
-
-	@Override
 	public void mouseEntered(MouseEvent e) {
 	}
 
 	@Override
 	public void mouseExited(MouseEvent e) {
+	}
+
+	@Override
+	public void mouseDragged(MouseEvent e) {
+		if (currentStroke != null) {
+			currentStroke.addPoint(e.getPoint());
+			canvas.repaint();
+		}
 	}
 
 	@Override

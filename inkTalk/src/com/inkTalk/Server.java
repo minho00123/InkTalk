@@ -8,7 +8,6 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
 public class Server implements Runnable {
 	private static final List<ObjectOutputStream> clients = Collections.synchronizedList(new ArrayList<>());
 	private static List<Stroke> drawData = new ArrayList<>();
