@@ -24,7 +24,7 @@ public class Chatboard extends JPanel implements ActionListener {
 	JTextArea chatArea; 
 	JTextField inputField; 
 	JButton sendButton;
-	
+
 	static Socket socket = null;
 	static BufferedWriter bw = null;
 	
@@ -61,36 +61,33 @@ public class Chatboard extends JPanel implements ActionListener {
 		setPreferredSize(new Dimension(300, 800));
 		JPanel chatPanel = new JPanel(new BorderLayout());
 		chatPanel.setBackground(new Color(209, 229, 240));
-        chatArea = new JTextArea();
-        chatArea.setEditable(false);
-        JScrollPane scroll = new JScrollPane(chatArea);
-        chatPanel.add(scroll, BorderLayout.CENTER);
-        
-        
-        
-        
-        chatArea.setBackground(new Color(209, 229, 240));
-        inputField = new JTextField();
-        
-        inputField.setBackground(new Color(169, 168, 217));
-        sendButton = new JButton("����");
-        sendButton.setBackground(new Color(1, 13, 38));
-        sendButton.setForeground(Color.WHITE);
-        sendButton.addActionListener(this);
+		chatArea = new JTextArea();
+		chatArea.setEditable(false);
+		JScrollPane scroll = new JScrollPane(chatArea);
+		chatPanel.add(scroll, BorderLayout.CENTER);
 
-        JPanel inputPanel = new JPanel(new BorderLayout());
-        inputPanel.add(inputField, BorderLayout.CENTER);
-        inputPanel.add(sendButton, BorderLayout.EAST);
-        
-        this.add(chatPanel, BorderLayout.CENTER);
-        this.add(inputPanel, BorderLayout.SOUTH);
-        
-        
+		chatArea.setBackground(new Color(209, 229, 240));
+		inputField = new JTextField();
+
+		inputField.setBackground(new Color(169, 168, 217));
+		sendButton = new JButton("����");
+		sendButton.setBackground(new Color(1, 13, 38));
+		sendButton.setForeground(Color.WHITE);
+		sendButton.addActionListener(this);
+
+		JPanel inputPanel = new JPanel(new BorderLayout());
+		inputPanel.add(inputField, BorderLayout.CENTER);
+		inputPanel.add(sendButton, BorderLayout.EAST);
+
+		this.add(chatPanel, BorderLayout.CENTER);
+		this.add(inputPanel, BorderLayout.SOUTH);
+
+		
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		
+
 		String before = inputField.getText();
 		String msg = e.getActionCommand();
 		
@@ -104,7 +101,7 @@ public class Chatboard extends JPanel implements ActionListener {
 		
 		inputField.setText("");
 		chatArea.revalidate();
-		
+
 	}
 
 }
