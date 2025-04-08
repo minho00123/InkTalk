@@ -14,7 +14,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.OutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
 
@@ -26,11 +25,13 @@ import javax.swing.JColorChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
+import javax.swing.SwingUtilities;
 
 import com.inkTalk.Stroke;
 
 public class Whiteboard extends JPanel implements ActionListener, MouseListener, MouseMotionListener {
 	private ObjectOutputStream out = null;
+	private ObjectInputStream in = null;
 
 	public JButton exit;
 
@@ -48,11 +49,9 @@ public class Whiteboard extends JPanel implements ActionListener, MouseListener,
 
 	public Whiteboard(ClientMain main, Socket socket) {
 		try {
-			OutputStream os = socket.getOutputStream();
-			InputStream is = socket.getInputStream();
-			out = new ObjectOutputStream(os);
+			out = new ObjectOutputStream(socket.getOutputStream());
 			out.flush();
-			ObjectInputStream in = new ObjectInputStream(is);
+			in = new ObjectInputStream(is);
 
 			Thread thread = new Thread(new Runnable() {
 
@@ -61,8 +60,16 @@ public class Whiteboard extends JPanel implements ActionListener, MouseListener,
 					try {
 						while (true) {
 							Stroke stroke = (Stroke) in.readObject();
-							strokes.add(stroke);
-							canvas.repaint();
+							System.out.println(stroke);
+							strokes.add((Stroke) stroke);
+							SwingUtilities.invokeLater(new Runnable() {
+
+								@Override
+								public void run() {
+									canvas.repaint();
+								}
+
+							});
 						}
 					} catch (IOException | ClassNotFoundException e) {
 						e.printStackTrace();
@@ -70,6 +77,7 @@ public class Whiteboard extends JPanel implements ActionListener, MouseListener,
 				}
 
 			});
+
 			thread.start();
 		} catch (IOException e) {
 			throw new RuntimeException(e);
