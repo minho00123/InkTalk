@@ -53,8 +53,8 @@ public class Whiteboard extends JPanel implements ActionListener, MouseListener,
 
     public Whiteboard(ClientMain main) {
         try {
-            InetAddress address = InetAddress.getByAddress(new byte[] { (byte) 172, (byte) 30, 1, 22 });
-            socket = new Socket(address, 5555);
+            InetAddress address = InetAddress.getByAddress(new byte[] { (byte) 172,  30, 1, 31 });
+            socket = new Socket("172.30.1.31", 5555);
             OutputStream os = socket.getOutputStream();
             InputStream is = socket.getInputStream();
             out = new ObjectOutputStream(os);
@@ -214,7 +214,6 @@ public class Whiteboard extends JPanel implements ActionListener, MouseListener,
         if (currentStroke != null) {
             currentStroke.addPoint(e.getPoint());
             canvas.repaint();
-            sendStrokeToServer(currentStroke);
         }
     }
 

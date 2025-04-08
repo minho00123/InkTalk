@@ -5,9 +5,10 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Stroke {
+public class Stroke implements Serializable{
 	private static final long serialVersionUID = 1L;
 
 	private ArrayList<Point> points;
