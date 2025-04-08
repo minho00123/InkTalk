@@ -12,12 +12,12 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
-public class ChatBoard extends JPanel implements ActionListener {
+public class Chatboard extends JPanel implements ActionListener {
 	JTextArea chatArea;
 	JTextField inputField;
 	JButton sendButton;
 
-	public ChatBoard() {
+	public Chatboard() {
 		setLayout(new BorderLayout());
 		setPreferredSize(new Dimension(300, 800));
 		JPanel chatPanel = new JPanel(new BorderLayout());

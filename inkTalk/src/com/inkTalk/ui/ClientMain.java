@@ -21,7 +21,7 @@ public class ClientMain extends JFrame implements ActionListener {
         loginUi = new LoginUi();
         JPanel drawChat = new JPanel(new BorderLayout());
         whiteboard = new Whiteboard(this);
-        ChatBoard chatBoard = new ChatBoard();
+        Chatboard chatBoard = new Chatboard();
         drawChat.add(whiteboard, BorderLayout.CENTER);
         drawChat.add(chatBoard, BorderLayout.EAST);
 
