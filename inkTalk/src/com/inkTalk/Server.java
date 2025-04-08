@@ -1,16 +1,19 @@
 package com.inkTalk;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 public class Server implements Runnable {
-	private static final List<ObjectOutputStream> clients = Collections.synchronizedList(new ArrayList<>());
+	private static final List<ObjectOutputStream> clients = new ArrayList<>();
 	private static List<Stroke> drawData = new ArrayList<>();
 	private Socket socket;
 	private ObjectOutputStream out;
@@ -18,6 +21,7 @@ public class Server implements Runnable {
 
 	public Server(Socket socket) {
 		this.socket = socket;
+
 		try {
 			out = new ObjectOutputStream(socket.getOutputStream());
 			out.flush();
@@ -38,21 +42,39 @@ public class Server implements Runnable {
 	public void run() {
 		try {
 			while (true) {
-				Stroke stroke = (Stroke) in.readObject();
-				drawData.add(stroke);
-				broadcast(stroke);
+				Object receivedObject = in.readObject();
+
+				if (receivedObject instanceof Stroke) {
+					Stroke stroke = (Stroke) receivedObject;
+					drawData.add(stroke);
+					broadcast(stroke);
+				} else if (receivedObject instanceof Message) {
+					Message msg = (Message) receivedObject;
+					broadcast(msg);
+				}
 			}
+		} catch (SocketException e) {
+			System.out.println("클라이언트 연결이 강제로 끊어졌습니다: " + socket.getInetAddress());
+		} catch (EOFException e) {
+			System.out.println("클라이언트 연결 종료됨: " + socket.getInetAddress());
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
+		} finally {
+			try {
+				clients.remove(out);
+				socket.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
-	private void broadcast(Stroke stroke) {
+	private void broadcast(Object object) {
 		for (ObjectOutputStream client : clients) {
 			try {
-				client.writeObject(stroke);
+				client.writeObject(object);
 				client.flush();
 			} catch (IOException e) {
 				e.printStackTrace();

@@ -1,11 +1,9 @@
 package com.inkTalk.ui;
 
-import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
@@ -19,11 +17,10 @@ public class ClientMain extends JFrame implements ActionListener {
 	JPanel masterBoard;
 	LoginUi loginUi;
 	CardLayout cardLayout;
-	Whiteboard whiteboard;
+	Board board;
+	private static String userNickName;
 
 	public ClientMain() {
-		InputStream is = null;
-
 		try {
 			socket = new Socket("172.30.1.22", 5555);
 		} catch (UnknownHostException e) {
@@ -37,14 +34,11 @@ public class ClientMain extends JFrame implements ActionListener {
 		masterBoard.setLayout(cardLayout);
 
 		loginUi = new LoginUi();
-		JPanel drawChat = new JPanel(new BorderLayout());
-		whiteboard = new Whiteboard(this, socket);
-		Chatboard chatBoard = new Chatboard(socket);
-		drawChat.add(whiteboard, BorderLayout.CENTER);
-		drawChat.add(chatBoard, BorderLayout.EAST);
+//		userNickName = loginUi.getUserNickName();
+		board = new Board(this, socket, userNickName);
 
 		masterBoard.add(loginUi, "login");
-		masterBoard.add(drawChat, "drawChat");
+		masterBoard.add(board, "drawChat");
 
 		loginUi.loginButton.addActionListener(this);
 
@@ -63,8 +57,8 @@ public class ClientMain extends JFrame implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == loginUi.loginButton) {
 			cardLayout.show(masterBoard, "drawChat");
-		} else if (e.getSource() == whiteboard.exit) {
-			whiteboard.actionPerformed(e);
+		} else if (e.getSource() == board.exit) {
+			board.actionPerformed(e);
 		}
 	}
 }

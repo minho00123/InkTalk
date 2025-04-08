@@ -117,9 +117,6 @@ public class LoginUi extends JPanel {
         backgroundPanel.add(verticalBox, new GridBagConstraints());
         Toolkit kit = Toolkit.getDefaultToolkit();
         Image img = kit.getImage("images/logoicon.jpg");
-    
-        
-       
     }
     
     
