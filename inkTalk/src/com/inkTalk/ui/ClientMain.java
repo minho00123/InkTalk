@@ -1,52 +1,68 @@
 package com.inkTalk.ui;
 
-import javax.swing.*;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.CardLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.net.Socket;
+import java.net.UnknownHostException;
+
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
 public class ClientMain extends JFrame implements ActionListener {
-	private static final long serialVersionUID = 1L;
+	private Socket socket;
 
 	JPanel masterBoard;
-    LoginUi loginUi;
-    CardLayout cardLayout;
-    Whiteboard whiteboard;
+	LoginUi loginUi;
+	CardLayout cardLayout;
+	Whiteboard whiteboard;
 
-    public ClientMain() {
-        masterBoard = new JPanel();
-        cardLayout = new CardLayout();
-        masterBoard.setLayout(cardLayout);
+	public ClientMain() {
+		try {
+			socket = new Socket("172.30.1.22", 5555);
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 
-        loginUi = new LoginUi();
-        JPanel drawChat = new JPanel(new BorderLayout());
-        whiteboard = new Whiteboard(this);
-        Chatboard chatBoard = new Chatboard();
-        drawChat.add(whiteboard, BorderLayout.CENTER);
-        drawChat.add(chatBoard, BorderLayout.EAST);
+		masterBoard = new JPanel();
+		cardLayout = new CardLayout();
+		masterBoard.setLayout(cardLayout);
 
-        masterBoard.add(loginUi, "login");
-        masterBoard.add(drawChat, "drawChat");
+		loginUi = new LoginUi();
+		JPanel drawChat = new JPanel(new BorderLayout());
+		whiteboard = new Whiteboard(this, socket);
+		Chatboard chatBoard = new Chatboard(socket);
+		System.out.println("HI");
+		drawChat.add(whiteboard, BorderLayout.CENTER);
+		drawChat.add(chatBoard, BorderLayout.EAST);
 
-        loginUi.loginButton.addActionListener(this);
+		masterBoard.add(loginUi, "login");
+		masterBoard.add(drawChat, "drawChat");
 
-        cardLayout.show(masterBoard, "login");
-        add(masterBoard);
-        setExtendedState(JFrame.MAXIMIZED_BOTH);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setVisible(true);
-    }
+		loginUi.loginButton.addActionListener(this);
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(ClientMain::new);
-    }
+		cardLayout.show(masterBoard, "login");
+		add(masterBoard);
+		setExtendedState(JFrame.MAXIMIZED_BOTH);
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setVisible(true);
+	}
 
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        if (e.getSource() == loginUi.loginButton) {
-            cardLayout.show(masterBoard, "drawChat");
-        } else if (e.getSource() == whiteboard.exit) {
-            whiteboard.actionPerformed(e);
-        }
-    }
+	public static void main(String[] args) {
+		SwingUtilities.invokeLater(ClientMain::new);
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		if (e.getSource() == loginUi.loginButton) {
+			cardLayout.show(masterBoard, "drawChat");
+		} else if (e.getSource() == whiteboard.exit) {
+			whiteboard.actionPerformed(e);
+		}
+	}
 }

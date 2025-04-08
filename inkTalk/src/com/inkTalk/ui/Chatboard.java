@@ -21,42 +21,38 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 public class Chatboard extends JPanel implements ActionListener {
-	JTextArea chatArea; 
-	JTextField inputField; 
+	JTextArea chatArea;
+	JTextField inputField;
 	JButton sendButton;
 
-	static Socket socket = null;
 	static BufferedWriter bw = null;
-	
-	public Chatboard () {
+
+	public Chatboard(Socket socket) {
 		InputStream is = null;
 		InputStreamReader isr = null;
 		BufferedReader br = null;
 		OutputStream os = null;
 		OutputStreamWriter osw = null;
-		
-		
+
 		try {
-			socket = new Socket("172.30.1.31", 5555);
 			os = socket.getOutputStream();
 			osw = new OutputStreamWriter(os);
 			bw = new BufferedWriter(osw);
-		
-//			//--------
-//			is = socket.getInputStream();
-//			br = new BufferedReader(new InputStreamReader(is));
-//			
-//			while(true) {
-//				String msg = br.readLine(); //서버에서 보내준 메세지들
-//				chatArea.setText(chatArea.getText() + "\n"+msg);
-//				chatArea.revalidate();
-//				
-//			}
+
+			// --------
+			is = socket.getInputStream();
+			br = new BufferedReader(new InputStreamReader(is));
+
+			while (true) {
+				String msg = br.readLine(); // 서버에서 보내준 메세지들
+				chatArea.setText(chatArea.getText() + "\n" + msg);
+				chatArea.revalidate();
+
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
-		
+
 		setLayout(new BorderLayout());
 		setPreferredSize(new Dimension(300, 800));
 		JPanel chatPanel = new JPanel(new BorderLayout());
@@ -82,7 +78,6 @@ public class Chatboard extends JPanel implements ActionListener {
 		this.add(chatPanel, BorderLayout.CENTER);
 		this.add(inputPanel, BorderLayout.SOUTH);
 
-		
 	}
 
 	@Override
@@ -90,7 +85,7 @@ public class Chatboard extends JPanel implements ActionListener {
 
 		String before = inputField.getText();
 		String msg = e.getActionCommand();
-		
+
 		try {
 			bw.write(msg);
 			bw.newLine();
@@ -98,7 +93,7 @@ public class Chatboard extends JPanel implements ActionListener {
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
-		
+
 		inputField.setText("");
 		chatArea.revalidate();
 
