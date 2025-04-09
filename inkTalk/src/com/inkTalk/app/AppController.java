@@ -22,7 +22,6 @@ public class AppController extends JPanel {
 
 	private Socket socket;
 	private User loggedInUser;
-	private Room room = new Room(1, 1, "기획회의방2");
 	private LoginUi loginUi;
 	private SignupUi signupUi;
 	private Board board;
@@ -33,7 +32,7 @@ public class AppController extends JPanel {
 		setLayout(new BorderLayout());
 		// 소켓 연결
 		try {
-			socket = new Socket("172.30.1.87", 5555);
+			socket = new Socket("172.30.1.31", 5555);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -46,13 +45,11 @@ public class AppController extends JPanel {
 		loginUi = new LoginUi(this);
 		signupUi = new SignupUi(this);
 		createRoom = new CreateRoomUi(this);
-		board = new Board(this, socket);
 
 		viewContainer.add(loginUi, "LOGIN");
 		viewContainer.add(signupUi, "SIGNUP");
 		viewContainer.add(createRoom, "CREATEROOM");
 
-		viewContainer.add(board, "BOARD");
 
 		add(viewContainer, BorderLayout.CENTER);
 
@@ -66,6 +63,8 @@ public class AppController extends JPanel {
 
 	public void loginSuccess(User user) {
 		this.loggedInUser = user;
+		board = new Board(this, socket);
+		viewContainer.add(board, "BOARD");
 		show("BOARD");
 	}
 

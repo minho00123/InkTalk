@@ -24,18 +24,25 @@ public class Server implements Runnable {
 		this.socket = socket;
 
 		try {
-			if(clients.contains(out)) { //clients 중복 확인
-				out.writeBoolean(true);
-				out.flush();
-			}else {
-				out.writeBoolean(false);
-				out.flush();
-				clients.add(out);	
-				for (Stroke stroke : drawData) {
-					out.writeObject(stroke);
-					out.flush();
-				}
-			}
+            // 입력 스트림 및 출력 스트림 초기화
+            in = new ObjectInputStream(socket.getInputStream());
+            out = new ObjectOutputStream(socket.getOutputStream());
+            out.flush(); // 초기화 후 플러시
+            
+            synchronized (clients) {
+                if (clients.contains(out)) {
+                    out.writeBoolean(true);  // 중복된 클라이언트 처리
+                    out.flush();
+                } else {
+                    out.writeBoolean(false);
+                    out.flush();
+                    clients.add(out); // 새 클라이언트 추가
+                    for (Stroke stroke : drawData) {
+                        out.writeObject(stroke);  // 이전 그린 데이터 전송
+                        out.flush();
+                    }
+                }
+            }
 
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -70,7 +77,9 @@ public class Server implements Runnable {
 			e.printStackTrace();
 		} finally {
 			try {
-				clients.remove(out);
+                synchronized (clients) {
+                    clients.remove(out);
+                }
 				socket.close();
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -78,16 +87,19 @@ public class Server implements Runnable {
 		}
 	}
 
-	private void broadcast(Object object) {
-		for (ObjectOutputStream client : clients) {
-			try {
-				client.writeObject(object);
-				client.flush();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-	}
+    private void broadcast(Object object) {
+        // 모든 클라이언트에게 메시지나 그림 전송
+        synchronized (clients) {
+            for (ObjectOutputStream client : clients) {
+                try {
+                    client.writeObject(object);
+                    client.flush();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
 
 	public static void main(String[] args) {
 		ServerSocket serverSocket = null;
