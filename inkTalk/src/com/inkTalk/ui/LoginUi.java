@@ -95,7 +95,7 @@ public class LoginUi extends JPanel implements ActionListener {
 
 		int totalHeight = pwField.getPreferredSize().height * 2 + 20;
 		loginButton.setPreferredSize(new Dimension(70, totalHeight));
-
+		loginButton.addActionListener(this);
 		// 로그인 버튼을 2행을 차지하게 설정
 		gbc.gridx = 2;
 		gbc.gridy = 0;
@@ -114,8 +114,8 @@ public class LoginUi extends JPanel implements ActionListener {
 		gbc.gridwidth = 3;
 		gbc.anchor = GridBagConstraints.CENTER;
 		loginPanel.add(signUpButton, gbc);
-
-		error = new JLabel("비밀번호 에러");
+		signUpButton.addActionListener(this);
+		error = new JLabel("");
 		error.setForeground(Color.RED);
 		gbc.gridx = 0;
 		gbc.gridy = 3;
@@ -148,7 +148,7 @@ public class LoginUi extends JPanel implements ActionListener {
 			//2. 닉네임은 일치하나 비밀번호가 일치하지 않는 경우
 			//3. 비밀번호는 일치하나 닉네임이 일치하지 않는 경우
 			Connection conn = JDBCTemplate.getConnection();
-			String sql = "SELECT USER_ID, PASSWORD FROM USER WHERE NICKNAME= ?";
+			String sql = "SELECT USER_ID, PASSWORD FROM \"USER\" WHERE NICKNAME= ?";
 			try {
 				pstmt = conn.prepareStatement(sql);
 				pstmt.setString(1, nickName);
@@ -181,7 +181,8 @@ public class LoginUi extends JPanel implements ActionListener {
 
 			}
 		} else if (e.getSource() == signUpButton) {
-
+			System.out.println("회원가입 선택");
+			controller.show("SIGNUP");
 		}
 	}
 

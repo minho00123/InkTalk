@@ -237,7 +237,7 @@ public class SignupUi extends JPanel implements DocumentListener, ActionListener
 			if (validateText()) {
 				Connection conn = JDBCTemplate.getConnection();
 				// 닉네임 중복검사
-				String sql = "SELECT USER_ID FROM USER WHERE NICKNAME=?";
+				String sql = "SELECT USER_ID FROM \"USER\" WHERE NICKNAME=?";
 				try {
 					pstmt = conn.prepareStatement(sql);
 					pstmt.setString(1, nicknameinput.trim());
@@ -249,7 +249,7 @@ public class SignupUi extends JPanel implements DocumentListener, ActionListener
 						int choice = JOptionPane.showConfirmDialog(this, "입력하신 정보로 회원가입 하시겠습니까?", "회원 가입 확인",
 								JOptionPane.OK_CANCEL_OPTION);
 						if (choice == JOptionPane.OK_OPTION) {
-							sql = "INSERT INTO USER(USER_ID, NICKNAME, PASSWORD) VALUES(USER_ID_SEQ.NEXTVAL,?,?)";
+							sql = "INSERT INTO \"USER\"(USER_ID, NICKNAME, PASSWORD) VALUES(USER_ID_SEQ.NEXTVAL,?,?)";
 							pstmt = conn.prepareStatement(sql);
 							pstmt.setString(1, nameField.getText());
 							pstmt.setString(2, pwordField.getText());
