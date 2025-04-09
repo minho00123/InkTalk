@@ -70,7 +70,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 		this.appController = appController;
 		this.socket = socket;
 		this.loggedInUser = appController.getLoggedInUser();
-		
+
 		this.setLayout(new BorderLayout());
 		this.setPreferredSize(new Dimension(1200, 800));
 
@@ -172,10 +172,10 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 			@Override
 			public void run() {
 				try {
-					//로그인한 User객체 보내기
+					// 로그인한 User객체 보내기
 					out.writeObject(loggedInUser);
 					out.flush();
-					
+
 					Boolean isDuplicate = in.readBoolean();
 					if (!isDuplicate) {
 						JOptionPane.showMessageDialog(null, "이미 로그인한 회원입니다.");
@@ -203,9 +203,9 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 								SwingUtilities.invokeLater(() -> canvas.repaint());
 							}
 						} catch (EOFException e) {
-	                        System.out.println("서버와의 연결이 종료되었습니다.");
-	                        break;
-	                    } catch (IOException | ClassNotFoundException e) {
+							System.out.println("서버와의 연결이 종료되었습니다.");
+							break;
+						} catch (IOException | ClassNotFoundException e) {
 							e.printStackTrace();
 							break;
 						}
@@ -222,12 +222,12 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 	}
 
 	protected void showConnectionError() {
-	    SwingUtilities.invokeLater(() -> {
-	        JOptionPane.showMessageDialog(this, "서버와의 연결에 문제가 발생했습니다. 프로그램을 종료합니다.");
-	        closeConnection();
-	        appController.dispose();
-	    });
-		
+		SwingUtilities.invokeLater(() -> {
+			JOptionPane.showMessageDialog(this, "서버와의 연결에 문제가 발생했습니다. 프로그램을 종료합니다.");
+			closeConnection();
+			appController.dispose();
+		});
+
 	}
 
 	@Override
@@ -259,11 +259,11 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 				out.flush();
 			} catch (IOException e) {
 				System.err.println("서버로 스트로크를 전송하는 중에 오류가 발생했습니다.");
-	            e.printStackTrace();
+				e.printStackTrace();
 				showConnectionError();
 			}
-		}else {
-	        System.err.println("출력 스트림(out)이 null입니다. 서버에 연결되어 있지 않습니다.");
+		} else {
+			System.err.println("출력 스트림(out)이 null입니다. 서버에 연결되어 있지 않습니다.");
 		}
 	}
 
@@ -274,14 +274,14 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 			if (!msg.trim().isEmpty()) {// 왜 그냥 .isEmpty나 .equals(null)은 안됐는지 모르겠어요
 				try {
 					Message message = new Message(loggedInUser.getNickname(), msg);
-					if(out != null) {
+					if (out != null) {
 						out.writeObject(message);
 						out.flush();
-						
+
 						inputField.setText("");
 						inputField.setText(" ");
 						chatArea.revalidate();
-					}else {
+					} else {
 						System.err.println("출력 스트림(out)이 null입니다. 서버에 연결되어 있지 않습니다.");
 					}
 				} catch (IOException e1) {
@@ -311,11 +311,11 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 			try {
 				String input = JOptionPane.showInputDialog(this, "두께를 입력하세요 (1 ~ 20)");
 				int thickness = Integer.parseInt(input);
-				currentThickness = Math.max(1, Math.min(20, thickness));
-				
+				currentThickness = Math.max(1, Math.min(20, thickness));	
 				currentColor = Color.WHITE;	
-			}catch(NumberFormatException ignored) {
-				
+			} catch (NumberFormatException ignored) {
+				ignored.printStackTrace();
+
 			}
 		} else if (e.getSource() == clearAll) {
 			int choice = JOptionPane.showConfirmDialog(this, "전체 그림을 지우시겠습니까?", "전체 삭제", JOptionPane.OK_CANCEL_OPTION);
@@ -365,11 +365,11 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 		try {
 			if (out != null) {
 				out.close();
-			} else if(in != null) {
+			} else if (in != null) {
 				in.close();
 			} else if (socket != null) {
-	            socket.close();
-	        }
+				socket.close();
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
