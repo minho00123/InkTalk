@@ -28,10 +28,14 @@ import javax.swing.JColorChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.JTextPane;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Style;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyledDocument;
 
 import com.inkTalk.app.AppController;
 import com.inkTalk.domain.Canvas;
@@ -62,7 +66,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 	int currentEraserThickness = 5;
 
 	// chatboard related-fields
-	JTextArea chatArea;
+	JTextPane chatArea;
 	JTextField inputField;
 	JButton sendButton;
 
@@ -120,7 +124,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 
 		JPanel chatPanel = new JPanel(new BorderLayout());
 		chatPanel.setBackground(new Color(209, 229, 240));
-		chatArea = new JTextArea();
+		chatArea = new JTextPane();
 		chatArea.setEditable(false);
 		JScrollPane scroll = new JScrollPane(chatArea);
 		chatPanel.add(scroll, BorderLayout.CENTER);
@@ -182,7 +186,8 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 						appController.show("LOGIN");
 						return;
 					}
-					out.writeObject(new Message("system", loggedInUser.getNickname() + "님이 입장하셨습니다."));
+					out.writeObject(
+							new Message("system", loggedInUser.getNickname() + "님이 입장하셨습니다.", loggedInUser.getColor()));
 					out.flush();
 
 					while (true) {
@@ -195,8 +200,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 							} else if (obj instanceof Message) {
 								Message msg = (Message) obj;
 								SwingUtilities.invokeLater(() -> {
-									chatArea.append(msg.getNickName() + " : " + msg.getMsg() + "\n");
-									chatArea.revalidate();
+									appendMessage(msg);
 								});
 							} else if (obj.equals("clearAll")) {
 								strokes.clear();
@@ -219,6 +223,83 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 
 		}).start();
 
+	}
+
+	private void appendMessage(Message msg) {
+		StyledDocument doc = chatArea.getStyledDocument();
+
+		try {
+			if (msg.getNickName().equals("system")) {
+				String content = msg.getMsg();
+
+				// 입장 메시지: "닉네임님이 입장하셨습니다."
+				if (content.endsWith("님이 입장하셨습니다.")) {
+					String nickname = content.substring(0, content.indexOf("님이"));
+					String remaining = content.substring(content.indexOf("님이"));
+
+					// 닉네임 스타일 (입장 메시지 색상)
+					Style nickStyle = chatArea.addStyle("JoinNick", null);
+					StyleConstants.setForeground(nickStyle, msg.getNameColor());
+					StyleConstants.setBold(nickStyle, true);
+
+					// 나머지 메시지 스타일 (검정색)
+					Style restStyle = chatArea.addStyle("JoinMsg", null);
+					StyleConstants.setForeground(restStyle, Color.BLACK);
+
+					// system: 은 검정색으로 넣어줌
+					Style systemStyle = chatArea.addStyle("System", null);
+					StyleConstants.setForeground(systemStyle, Color.BLACK);
+					StyleConstants.setBold(systemStyle, true);
+
+					doc.insertString(doc.getLength(), "system", systemStyle);
+					doc.insertString(doc.getLength(), " : ", restStyle);
+					doc.insertString(doc.getLength(), nickname, nickStyle);
+					doc.insertString(doc.getLength(), remaining + "\n", restStyle);
+
+				} else if (content.endsWith("님이 퇴장하셨습니다.")) {
+					// 퇴장 메시지는 그대로 유지
+					String nickname = content.substring(0, content.indexOf("님이"));
+					String remaining = content.substring(content.indexOf("님이"));
+
+					Style nickStyle = chatArea.addStyle("ExitNick", null);
+					StyleConstants.setForeground(nickStyle, msg.getNameColor());
+					StyleConstants.setBold(nickStyle, true);
+
+					Style restStyle = chatArea.addStyle("ExitMsg", null);
+					StyleConstants.setForeground(restStyle, Color.BLACK);
+
+					Style systemStyle = chatArea.addStyle("System", null);
+					StyleConstants.setForeground(systemStyle, Color.BLACK);
+					StyleConstants.setBold(systemStyle, true);
+
+					doc.insertString(doc.getLength(), "system", systemStyle);
+					doc.insertString(doc.getLength(), " : ", restStyle);
+					doc.insertString(doc.getLength(), nickname, nickStyle);
+					doc.insertString(doc.getLength(), remaining + "\n", restStyle);
+
+				} else {
+					// 그 외 시스템 메시지
+					Style sysStyle = chatArea.addStyle("SystemMsg", null);
+					StyleConstants.setForeground(sysStyle, Color.DARK_GRAY);
+					StyleConstants.setItalic(sysStyle, true);
+
+					doc.insertString(doc.getLength(), "system : " + content + "\n", sysStyle);
+				}
+			} else {
+				// 일반 사용자 메시지
+				Style nickStyle = chatArea.addStyle("Nickname", null);
+				StyleConstants.setForeground(nickStyle, msg.getNameColor());
+				StyleConstants.setBold(nickStyle, true);
+
+				Style msgStyle = chatArea.addStyle("Message", null);
+				StyleConstants.setForeground(msgStyle, Color.BLACK);
+
+				doc.insertString(doc.getLength(), msg.getNickName(), nickStyle);
+				doc.insertString(doc.getLength(), " : " + msg.getMsg() + "\n", msgStyle);
+			}
+		} catch (BadLocationException e) {
+			e.printStackTrace();
+		}
 	}
 
 	protected void showConnectionError() {
@@ -273,7 +354,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 		if (e.getSource() == sendButton || e.getSource() == inputField) {
 			if (!msg.trim().isEmpty()) {// 왜 그냥 .isEmpty나 .equals(null)은 안됐는지 모르겠어요
 				try {
-					Message message = new Message(loggedInUser.getNickname(), msg);
+					Message message = new Message(loggedInUser.getNickname(), msg, loggedInUser.getColor());
 					if (out != null) {
 						out.writeObject(message);
 						out.flush();
@@ -303,7 +384,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 			}
 		} else if (e.getSource() == palette) {
 			Color pickedColor = JColorChooser.showDialog(this, "색상 선택", currentColor);
-			
+
 			if (pickedColor != null) {
 				currentColor = pickedColor;
 			}
@@ -311,8 +392,8 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 			try {
 				String input = JOptionPane.showInputDialog(this, "두께를 입력하세요 (1 ~ 20)");
 				int thickness = Integer.parseInt(input);
-				currentThickness = Math.max(1, Math.min(20, thickness));	
-				currentColor = Color.WHITE;	
+				currentThickness = Math.max(1, Math.min(20, thickness));
+				currentColor = Color.WHITE;
 			} catch (NumberFormatException ignored) {
 				ignored.printStackTrace();
 
@@ -349,12 +430,11 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 
 			if (exit == JOptionPane.OK_OPTION) {
 				try {
-					out.writeObject(new Message("system", loggedInUser.getNickname() + "님이 퇴장하셨습니다."));
+					out.writeObject(
+							new Message("system", loggedInUser.getNickname() + "님이 퇴장하셨습니다.", loggedInUser.getColor()));
 					out.flush();
 				} catch (IOException e1) {
 					e1.printStackTrace();
-				} finally {
-					closeConnection();
 				}
 				appController.dispose();
 			}

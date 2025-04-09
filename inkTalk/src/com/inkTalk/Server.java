@@ -83,7 +83,7 @@ public class Server implements Runnable {
 			}
 		} catch (SocketException e) {
 			System.out.println("클라이언트 연결이 강제로 끊어졌습니다: " + socket.getInetAddress());
-			broadcast(new Message("system", loggedInUser.getNickname() + "님이 퇴장하셨습니다."));
+			broadcast(new Message("system", loggedInUser.getNickname() + "님이 퇴장하셨습니다.", loggedInUser.getColor()));
 			loggedInUsers.remove(loggedInUser);
 		} catch (EOFException e) {
 			System.out.println("클라이언트 연결 종료됨: " + socket.getInetAddress());
@@ -112,6 +112,8 @@ public class Server implements Runnable {
 				try {
 					client.writeObject(object);
 					client.flush();
+				} catch (SocketException e) {
+					e.printStackTrace();
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
