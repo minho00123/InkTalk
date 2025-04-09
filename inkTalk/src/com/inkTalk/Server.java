@@ -8,13 +8,17 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.inkTalk.domain.Message;
 import com.inkTalk.domain.Stroke;
+import com.inkTalk.domain.User;
 
 public class Server implements Runnable {
 	private static final List<ObjectOutputStream> clients = new ArrayList<>();
+	private static final Set<User> loggedInUsers  = new HashSet<>();
 	private static List<Stroke> drawData = new ArrayList<>();
 	private Socket socket;
 	private ObjectOutputStream out;
@@ -25,26 +29,29 @@ public class Server implements Runnable {
 
 		try {
             // 입력 스트림 및 출력 스트림 초기화
+			out = new ObjectOutputStream(socket.getOutputStream());
+			out.flush(); 
             in = new ObjectInputStream(socket.getInputStream());
-            out = new ObjectOutputStream(socket.getOutputStream());
-            out.flush(); // 초기화 후 플러시
             
-            synchronized (clients) {
-                if (clients.contains(out)) {
-                    out.writeBoolean(true);  // 중복된 클라이언트 처리
-                    out.flush();
-                } else {
-                    out.writeBoolean(false);
-                    out.flush();
-                    clients.add(out); // 새 클라이언트 추가
-                    for (Stroke stroke : drawData) {
-                        out.writeObject(stroke);  // 이전 그린 데이터 전송
-                        out.flush();
-                    }
-                }
+            //유저 받아서 중복 확인
+            Boolean isDup = loggedInUsers.add((User) in.readObject());
+            if(isDup) {
+            	out.writeBoolean(true);
+            	out.flush(); 
+            }else {
+            	out.writeBoolean(false);
+            	out.flush(); 
             }
+            clients.add(out); // 새 클라이언트 추가
+            for (Stroke stroke : drawData) {
+                out.writeObject(stroke);  // 이전 그린 데이터 전송
+                out.flush();
+            }
+            
 
 		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}
 	}
