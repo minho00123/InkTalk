@@ -50,7 +50,6 @@ public class AppController extends JPanel {
 		viewContainer.add(signupUi, "SIGNUP");
 		viewContainer.add(createRoom, "CREATEROOM");
 
-
 		add(viewContainer, BorderLayout.CENTER);
 
 		// 초기 화면

@@ -18,7 +18,7 @@ import com.inkTalk.domain.User;
 
 public class Server implements Runnable {
 	private static final List<ObjectOutputStream> clients = new ArrayList<>();
-	private static final Set<User> loggedInUsers  = new HashSet<>();
+	private static final Set<User> loggedInUsers = new HashSet<>();
 	private static List<Stroke> drawData = new ArrayList<>();
 	private Socket socket;
 	private ObjectOutputStream out;
@@ -28,32 +28,35 @@ public class Server implements Runnable {
 		this.socket = socket;
 
 		try {
-            // 입력 스트림 및 출력 스트림 초기화
+			// 입력 스트림 및 출력 스트림 초기화
 			out = new ObjectOutputStream(socket.getOutputStream());
-			out.flush(); 
-            in = new ObjectInputStream(socket.getInputStream());
-            
-            //유저 받아서 중복 확인
-            Boolean isDup = loggedInUsers.add((User) in.readObject());
-            if(isDup) {
-            	out.writeBoolean(true);
-            	out.flush(); 
-            	
-            }else {
-            	out.writeBoolean(false);
-            	out.flush(); 
-            	return;
-            }
-            clients.add(out); // 새 클라이언트 추가
-            for (Stroke stroke : drawData) {
-                out.writeObject(stroke);  // 이전 그린 데이터 전송
-                out.flush();
-            }
-            
+			out.flush();
+			in = new ObjectInputStream(socket.getInputStream());
 
+			// 유저 받아서 중복 확인
+			Boolean isDup = loggedInUsers.add((User) in.readObject());
+			if (isDup) {
+				out.writeBoolean(true);
+				out.flush();
+
+			} else {
+				out.writeBoolean(false);
+				out.flush();
+				return;
+			}
+			clients.add(out); // 새 클라이언트 추가
+			for (Stroke stroke : drawData) {
+				out.writeObject(stroke); // 이전 그린 데이터 전송
+				out.flush();
+			}
+
+		} catch (SocketException e) {
+			System.out.println("클라이언트 연결이 강제로 끊어졌습니다: " + socket.getInetAddress());
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (NullPointerException e) {
 			e.printStackTrace();
 		}
 	}
@@ -84,11 +87,13 @@ public class Server implements Runnable {
 			e.printStackTrace();
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
+		} catch (NullPointerException e) {
+
 		} finally {
 			try {
-                synchronized (clients) {
-                    clients.remove(out);
-                }
+				synchronized (clients) {
+					clients.remove(out);
+				}
 				socket.close();
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -96,19 +101,19 @@ public class Server implements Runnable {
 		}
 	}
 
-    private void broadcast(Object object) {
-        // 모든 클라이언트에게 메시지나 그림 전송
-        synchronized (clients) {
-            for (ObjectOutputStream client : clients) {
-                try {
-                    client.writeObject(object);
-                    client.flush();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
+	private void broadcast(Object object) {
+		// 모든 클라이언트에게 메시지나 그림 전송
+		synchronized (clients) {
+			for (ObjectOutputStream client : clients) {
+				try {
+					client.writeObject(object);
+					client.flush();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
 
 	public static void main(String[] args) {
 		ServerSocket serverSocket = null;
