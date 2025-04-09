@@ -13,9 +13,7 @@ import com.inkTalk.domain.Room;
 import com.inkTalk.domain.User;
 import com.inkTalk.ui.Board;
 import com.inkTalk.ui.CreateRoomUi;
-import com.inkTalk.ui.EnterRoomUi;
 import com.inkTalk.ui.LoginUi;
-import com.inkTalk.ui.RoomListUi;
 import com.inkTalk.ui.SignupUi;
 
 public class AppController extends JPanel {
@@ -28,8 +26,6 @@ public class AppController extends JPanel {
 	private LoginUi loginUi;
 	private SignupUi signupUi;
 	private Board board;
-	private RoomListUi roomList;
-	private EnterRoomUi enterRoom;
 	private CreateRoomUi createRoom;
 
 	public AppController() {
@@ -49,16 +45,12 @@ public class AppController extends JPanel {
 		// 각 화면 초기화 및 등록
 		loginUi = new LoginUi(this);
 		signupUi = new SignupUi(this);
-		roomList = new RoomListUi(this);
 		createRoom = new CreateRoomUi(this);
-		enterRoom = new EnterRoomUi(this, room);
 		board = new Board(this, socket);
 
 		viewContainer.add(loginUi, "LOGIN");
 		viewContainer.add(signupUi, "SIGNUP");
-		viewContainer.add(roomList, "ROOMLIST");
 		viewContainer.add(createRoom, "CREATEROOM");
-		viewContainer.add(enterRoom, "ENTERROOM");
 
 		viewContainer.add(board, "BOARD");
 
