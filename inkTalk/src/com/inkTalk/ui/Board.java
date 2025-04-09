@@ -37,13 +37,14 @@ import com.inkTalk.app.AppController;
 import com.inkTalk.domain.Canvas;
 import com.inkTalk.domain.Message;
 import com.inkTalk.domain.Stroke;
+import com.inkTalk.domain.User;
 
 public class Board extends JPanel implements ActionListener, MouseListener, MouseMotionListener {
 	private ObjectOutputStream out = null;
 	private ObjectInputStream in = null;
 
 	private Socket socket;
-	private String userNickname;
+	private User loggedInUser;
 
 	// whiteboard related-fields
 	public JButton exit;
@@ -68,7 +69,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 	public Board(AppController appController, Socket socket) {
 		this.appController = appController;
 		this.socket = socket;
-		this.userNickname = appController.getLoggedInUser().getNickname();
+		this.loggedInUser = appController.getLoggedInUser();
 		
 		this.setLayout(new BorderLayout());
 		this.setPreferredSize(new Dimension(1200, 800));
@@ -171,16 +172,17 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 			@Override
 			public void run() {
 				try {
+					//로그인한 User객체 보내기
+					out.writeObject(loggedInUser);
+					out.flush();
 					
-					// 중복 값 받기
 					Boolean isDuplicate = in.readBoolean();
-					if (isDuplicate) {
+					if (!isDuplicate) {
 						JOptionPane.showMessageDialog(null, "이미 로그인한 회원입니다.");
 						appController.show("LOGIN");
 						return;
 					}
-					
-					out.writeObject(new Message("system", userNickname + "님이 입장하셨습니다."));
+					out.writeObject(new Message("system", loggedInUser.getNickname() + "님이 입장하셨습니다."));
 					out.flush();
 
 					while (true) {
@@ -271,7 +273,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 		if (e.getSource() == sendButton || e.getSource() == inputField) {
 			if (!msg.trim().isEmpty()) {// 왜 그냥 .isEmpty나 .equals(null)은 안됐는지 모르겠어요
 				try {
-					Message message = new Message(userNickname, msg);
+					Message message = new Message(loggedInUser.getNickname(), msg);
 					if(out != null) {
 						out.writeObject(message);
 						out.flush();
@@ -343,7 +345,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 
 			if (exit == JOptionPane.OK_OPTION) {
 				try {
-					out.writeObject(new Message("system", userNickname + "님이 퇴장하셨습니다."));
+					out.writeObject(new Message("system", loggedInUser.getNickname() + "님이 퇴장하셨습니다."));
 					out.flush();
 				} catch (IOException e1) {
 					e1.printStackTrace();
@@ -359,7 +361,11 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 		try {
 			if (out != null) {
 				out.close();
-			}
+			} else if(in != null) {
+				in.close();
+			} else if (socket != null) {
+	            socket.close();
+	        }
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
