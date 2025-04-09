@@ -32,8 +32,8 @@ public class AppController extends JPanel {
 		setLayout(new BorderLayout());
 		// 소켓 연결
 		try {
-//			socket = new Socket("172.30.1.87", 5555);
-			socket = new Socket("172.30.1.31", 5555);
+			socket = new Socket("172.30.1.87", 5555);
+//			socket = new Socket("172.30.1.31", 5555);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
