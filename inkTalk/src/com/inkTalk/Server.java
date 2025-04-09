@@ -38,9 +38,11 @@ public class Server implements Runnable {
             if(isDup) {
             	out.writeBoolean(true);
             	out.flush(); 
+            	
             }else {
             	out.writeBoolean(false);
             	out.flush(); 
+            	return;
             }
             clients.add(out); // 새 클라이언트 추가
             for (Stroke stroke : drawData) {
