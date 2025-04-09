@@ -4,7 +4,7 @@
 	<comment>driver.xml file!!</comment>
 	
 	<entry key="driver">oracle.jdbc.driver.OracleDriver</entry>
-	<entry key="url">jdbc:oracle:thin:@172.30.1.22:1521:XE</entry>
+	<entry key="url">jdbc:oracle:thin:@172.30.1.87:1521:XE</entry>
 	<entry key="user">inkTalk</entry>
 	<entry key="password">inkTalk</entry>
 	

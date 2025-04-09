@@ -14,21 +14,23 @@ import com.inkTalk.domain.Room;
 import com.inkTalk.domain.User;
 import com.inkTalk.jdbc.JDBCTemplate;
 
-public class EnterRoomUi extends JPanel implements ActionListener{
+public class EnterRoomUi extends JPanel implements ActionListener {
 	private PreparedStatement pstmt;
 	private ResultSet rs;
 	AppController controller;
 	Room room;
-	
+
 	public EnterRoomUi(AppController appController, Room room) {
-		this.controller = controller;
+		this.controller = appController;
 		this.room = room;
-		// TODO Auto-generated constructor stub
+
+		System.out.println("Enter Room 왔음~");
+		controller.show("BOARD");
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		//선택한 방 객체의 id를 가져와서 id와 pw 비교하기
+		// 선택한 방 객체의 id를 가져와서 id와 pw 비교하기
 //		if(e.getSource()==enterButton) {
 //		
 //		String title = room.getTitle();
@@ -57,7 +59,7 @@ public class EnterRoomUi extends JPanel implements ActionListener{
 //		controller.show("");
 //	}
 //	
-		
+
 	}
 
 }
