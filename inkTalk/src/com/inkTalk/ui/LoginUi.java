@@ -49,6 +49,7 @@ public class LoginUi extends JPanel implements ActionListener {
 		JPanel backgroundPanel = new JPanel(new GridBagLayout());
 		backgroundPanel.setBackground(new Color(209, 229, 240));
 		backgroundPanel.setPreferredSize(new Dimension(1200, 800));
+
 		// 로고 이미지
 		ImageIcon logoIcon = new ImageIcon("images/logo.jpg");
 		JLabel logoLabel = new JLabel(logoIcon);
@@ -74,7 +75,7 @@ public class LoginUi extends JPanel implements ActionListener {
 		gbc.gridwidth = 2;
 		gbc.anchor = GridBagConstraints.WEST;
 		loginPanel.add(idField, gbc);
-		gbc.gridwidth = 1; // �ʱ�ȭ
+		gbc.gridwidth = 1;
 
 		// 비밀번호
 		gbc.gridx = 0;
@@ -96,6 +97,7 @@ public class LoginUi extends JPanel implements ActionListener {
 		int totalHeight = pwField.getPreferredSize().height * 2 + 20;
 		loginButton.setPreferredSize(new Dimension(70, totalHeight));
 		loginButton.addActionListener(this);
+
 		// 로그인 버튼을 2행을 차지하게 설정
 		gbc.gridx = 2;
 		gbc.gridy = 0;
@@ -115,6 +117,7 @@ public class LoginUi extends JPanel implements ActionListener {
 		gbc.anchor = GridBagConstraints.CENTER;
 		loginPanel.add(signUpButton, gbc);
 		signUpButton.addActionListener(this);
+
 		error = new JLabel("");
 		error.setForeground(Color.RED);
 		gbc.gridx = 0;
@@ -144,24 +147,26 @@ public class LoginUi extends JPanel implements ActionListener {
 			String nickName = new String(idField.getText()).trim();
 
 			// jdbc 연결
-			//1. 닉네임과 비밀번호가 일치하지 않는 경우
-			//2. 닉네임은 일치하나 비밀번호가 일치하지 않는 경우
-			//3. 비밀번호는 일치하나 닉네임이 일치하지 않는 경우
+			// 1. 닉네임과 비밀번호가 일치하지 않는 경우
+			// 2. 닉네임은 일치하나 비밀번호가 일치하지 않는 경우
+			// 3. 비밀번호는 일치하나 닉네임이 일치하지 않는 경우
 			Connection conn = JDBCTemplate.getConnection();
 			String sql = "SELECT USER_ID, PASSWORD FROM \"USER\" WHERE NICKNAME= ?";
+
 			try {
 				pstmt = conn.prepareStatement(sql);
 				pstmt.setString(1, nickName);
+
 				rs = pstmt.executeQuery();
 
 				if (rs != null && rs.next()) {
-					
+
 					String dbPw = rs.getString("PASSWORD");
-					if(dbPw.equals(pw)){
+					if (dbPw.equals(pw)) {
 						int userId = rs.getInt("USER_ID"); // 유저아이디 컬럼명 먼지 확인
 						User user = new User(userId, nickName);
 						controller.loginSuccess(user);
-					}else {
+					} else {
 						error.setText("비밀번호가 일치하지 않습니다. 다시 시도하세요.");
 					}
 				} else {// 로그인 실패
@@ -170,7 +175,7 @@ public class LoginUi extends JPanel implements ActionListener {
 				}
 			} catch (SQLException e1) {
 				e1.printStackTrace();
-			}finally {
+			} finally {
 				try {
 					conn.close();
 					pstmt.close();
@@ -181,7 +186,7 @@ public class LoginUi extends JPanel implements ActionListener {
 
 			}
 		} else if (e.getSource() == signUpButton) {
-			System.out.println("회원가입 선택");
+
 			controller.show("SIGNUP");
 		}
 	}

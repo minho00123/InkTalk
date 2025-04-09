@@ -66,7 +66,7 @@ public class AppController extends JPanel {
 
 	public void loginSuccess(User user) {
 		this.loggedInUser = user;
-		show("BOARD"); // 방 입장하기 화면으로 전환
+		show("BOARD");
 	}
 
 	public User getLoggedInUser() {

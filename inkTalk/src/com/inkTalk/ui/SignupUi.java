@@ -122,6 +122,8 @@ public class SignupUi extends JPanel implements DocumentListener, ActionListener
 		int totalHeight = pwordField.getPreferredSize().height * 2;
 		signupConfirm.setPreferredSize(new Dimension(100, totalHeight));
 		signupPanel.add(signupConfirm, gbc);
+		signupConfirm.addActionListener(this);
+		
 
 		signupCancel = new JButton("취소");
 		signupCancel.setBackground(new Color(11, 29, 49));
@@ -132,7 +134,8 @@ public class SignupUi extends JPanel implements DocumentListener, ActionListener
 		gbc.gridwidth = 2;
 		signupCancel.setPreferredSize(new Dimension(100, totalHeight));
 		signupPanel.add(signupCancel, gbc);
-
+		signupCancel.addActionListener(this);
+		
 		// 수직 정렬
 		JPanel verticalBox = new JPanel();
 		verticalBox.setLayout(new BoxLayout(verticalBox, BoxLayout.Y_AXIS));
