@@ -17,6 +17,7 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.imageio.ImageIO;
 import javax.swing.BoxLayout;
@@ -47,7 +48,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 	public JButton exit;
 	AppController appController;
 	Canvas canvas;
-	ArrayList<Stroke> strokes = new ArrayList<>();
+	List<Stroke> strokes = new ArrayList<>();
 	Stroke currentStroke = null;
 	JButton thickness;
 	JButton palette;
@@ -56,6 +57,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 	JButton save;
 	Color currentColor = Color.BLACK;
 	int currentThickness = 2;
+	int currentEraserThickness = 5;
 
 	// chatboard related-fields
 	JTextArea chatArea;
@@ -165,6 +167,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 				try {
 					while (true) {
 						Object obj = in.readObject();
+
 						if (obj instanceof Stroke) {
 							strokes.add((Stroke) obj);
 							SwingUtilities.invokeLater(() -> canvas.repaint());
@@ -174,6 +177,9 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 								chatArea.append(msg.getNickName() + " : " + msg.getMsg() + "\n");
 								chatArea.revalidate();
 							});
+						} else if (obj.equals("clearAll")) {
+							strokes.clear();
+							SwingUtilities.invokeLater(() -> canvas.repaint());
 						}
 					}
 				} catch (IOException | ClassNotFoundException e) {
@@ -241,22 +247,37 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 			try {
 				int thickness = Integer.parseInt(input);
 				currentThickness = Math.max(1, Math.min(20, thickness));
+
+				if (currentColor.equals(Color.WHITE)) {
+					currentColor = Color.BLACK;
+				}
 			} catch (NumberFormatException ignored) {
 
 			}
 		} else if (e.getSource() == palette) {
 			Color pickedColor = JColorChooser.showDialog(this, "색상 선택", currentColor);
+
 			if (pickedColor != null) {
 				currentColor = pickedColor;
 			}
 		} else if (e.getSource() == eraser) {
+			String input = JOptionPane.showInputDialog(this, "두께를 입력하세요 (1 ~ 20)");
+			int thickness = Integer.parseInt(input);
+			currentThickness = Math.max(1, Math.min(20, thickness));
+
 			currentColor = Color.WHITE;
 		} else if (e.getSource() == clearAll) {
 			int choice = JOptionPane.showConfirmDialog(this, "전체 그림을 지우시겠습니까?", "전체 삭제", JOptionPane.OK_CANCEL_OPTION);
 
 			if (choice == JOptionPane.OK_OPTION) {
-				strokes.clear();
-				canvas.repaint();
+				try {
+					strokes.clear();
+					out.writeObject("clearAll");
+					out.flush();
+					canvas.repaint();
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
 			}
 		} else if (e.getSource() == save) {
 			canvas.redrawToBufferedImage();

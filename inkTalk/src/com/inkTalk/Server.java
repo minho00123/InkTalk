@@ -52,6 +52,9 @@ public class Server implements Runnable {
 				} else if (receivedObject instanceof Message) {
 					Message msg = (Message) receivedObject;
 					broadcast(msg);
+				} else if (receivedObject.equals("clearAll")) {
+					drawData.clear();
+					broadcast("clearAll");
 				}
 			}
 		} catch (SocketException e) {
