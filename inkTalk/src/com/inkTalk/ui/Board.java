@@ -303,16 +303,20 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 			}
 		} else if (e.getSource() == palette) {
 			Color pickedColor = JColorChooser.showDialog(this, "색상 선택", currentColor);
-
+			
 			if (pickedColor != null) {
 				currentColor = pickedColor;
 			}
 		} else if (e.getSource() == eraser) {
-			String input = JOptionPane.showInputDialog(this, "두께를 입력하세요 (1 ~ 20)");
-			int thickness = Integer.parseInt(input);
-			currentThickness = Math.max(1, Math.min(20, thickness));
-
-			currentColor = Color.WHITE;
+			try {
+				String input = JOptionPane.showInputDialog(this, "두께를 입력하세요 (1 ~ 20)");
+				int thickness = Integer.parseInt(input);
+				currentThickness = Math.max(1, Math.min(20, thickness));
+				
+				currentColor = Color.WHITE;	
+			}catch(NumberFormatException ignored) {
+				
+			}
 		} else if (e.getSource() == clearAll) {
 			int choice = JOptionPane.showConfirmDialog(this, "전체 그림을 지우시겠습니까?", "전체 삭제", JOptionPane.OK_CANCEL_OPTION);
 
