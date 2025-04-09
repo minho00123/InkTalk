@@ -48,7 +48,7 @@ public class SignupUi extends JPanel implements DocumentListener, ActionListener
 		this.add(backgroundPanel);
 
 		// 로고 이미지
-		ImageIcon logoIcon = new ImageIcon("images/logo.jpg"); // 로고 이미지 경로
+		ImageIcon logoIcon = new ImageIcon("images/logo.png"); // 로고 이미지 경로
 		JLabel logoLabel = new JLabel(logoIcon);
 		logoLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
