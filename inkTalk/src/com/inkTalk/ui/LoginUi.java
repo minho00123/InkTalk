@@ -151,7 +151,6 @@ public class LoginUi extends JPanel implements ActionListener {
 			// 2. 닉네임은 일치하나 비밀번호가 일치하지 않는 경우
 			// 3. 비밀번호는 일치하나 닉네임이 일치하지 않는 경우
 			Connection conn = JDBCTemplate.getConnection();
-
 			String sql = "SELECT USER_ID, PASSWORD FROM \"USER\" WHERE NICKNAME= ?";
 
 			try {
@@ -187,6 +186,7 @@ public class LoginUi extends JPanel implements ActionListener {
 
 			}
 		} else if (e.getSource() == signUpButton) {
+
 			controller.show("SIGNUP");
 		}
 	}

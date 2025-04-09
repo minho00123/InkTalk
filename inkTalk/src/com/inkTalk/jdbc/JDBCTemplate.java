@@ -20,7 +20,8 @@ public class JDBCTemplate {
 
 				Properties prop = new Properties();
 
-				prop.loadFromXML(new FileInputStream("src/com/inkTalk/jdbc/driver.xml"));
+				prop.loadFromXML( new FileInputStream("src/com/inkTalk/jdbc/driver.xml") );
+				
 
 				String driver = prop.getProperty("driver");
 				String url = prop.getProperty("url");
