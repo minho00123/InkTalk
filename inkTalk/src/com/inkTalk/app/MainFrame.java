@@ -9,7 +9,7 @@ public class MainFrame extends JFrame {
 		AppController controller = new AppController();
 		setContentPane(controller);
 
-		setSize(1300, 1000);
+		setSize(1200, 800);
 
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setVisible(true);

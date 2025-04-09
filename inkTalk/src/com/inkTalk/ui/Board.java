@@ -42,7 +42,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 	private ObjectInputStream in = null;
 
 	Socket socket;
-	String nickname;
+	String userNickname;
 
 	// whiteboard related-fields
 	public JButton exit;
@@ -68,9 +68,12 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 		this.appController = appController;
 		this.socket = socket;
 
+		this.setLayout(new BorderLayout());
+		this.setPreferredSize(new Dimension(1200, 800));
+
 		// whiteboard UI
 		JPanel whiteboard = new JPanel(new BorderLayout());
-		whiteboard.setPreferredSize(new Dimension(800, 800));
+		whiteboard.setPreferredSize(new Dimension(880, 800));
 		canvas = new Canvas(strokes);
 		canvas.setBackground(Color.WHITE);
 		canvas.addMouseListener(this);
@@ -121,8 +124,9 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 
 		chatArea.setBackground(new Color(209, 229, 240));
 		inputField = new JTextField();
+		inputField.addActionListener(this);
 
-		inputField.setBackground(new Color(169, 168, 217));
+		inputField.setBackground(new Color(169, 198, 217));
 		sendButton = new JButton("전송");
 		sendButton.setBackground(new Color(1, 13, 38));
 		sendButton.setForeground(Color.WHITE);
@@ -165,31 +169,47 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 			@Override
 			public void run() {
 				try {
-					while (true) {
-						Object obj = in.readObject();
-
-						if (obj instanceof Stroke) {
-							strokes.add((Stroke) obj);
-							SwingUtilities.invokeLater(() -> canvas.repaint());
-						} else if (obj instanceof Message) {
-							Message msg = (Message) obj;
-							SwingUtilities.invokeLater(() -> {
-								chatArea.append(msg.getNickName() + " : " + msg.getMsg() + "\n");
-								chatArea.revalidate();
-							});
-						} else if (obj.equals("clearAll")) {
-							strokes.clear();
-							SwingUtilities.invokeLater(() -> canvas.repaint());
-						}
+					// 중복 값 받기
+					Boolean isDuplicate = in.readBoolean();
+					if (isDuplicate) {
+						JOptionPane.showMessageDialog(null, "이미 로그인한 회원입니다.");
+						appController.show("LOGIN");
+						return;
 					}
-				} catch (IOException | ClassNotFoundException e) {
+					userNickname = appController.getLoggedInUser().getNickname();
+					out.writeObject(new Message("system", userNickname + "님이 입장하셨습니다."));
+					out.flush();
+
+					while (true) {
+						Object obj;
+						try {
+							obj = in.readObject();
+							if (obj instanceof Stroke) {
+								strokes.add((Stroke) obj);
+								SwingUtilities.invokeLater(() -> canvas.repaint());
+							} else if (obj instanceof Message) {
+								Message msg = (Message) obj;
+								SwingUtilities.invokeLater(() -> {
+									chatArea.append(msg.getNickName() + " : " + msg.getMsg() + "\n");
+									chatArea.revalidate();
+								});
+							} else if (obj.equals("clearAll")) {
+								strokes.clear();
+								SwingUtilities.invokeLater(() -> canvas.repaint());
+							}
+						} catch (ClassNotFoundException e) {
+							e.printStackTrace();
+							break;
+						}
+
+					}
+				} catch (IOException e) {
 					e.printStackTrace();
-				} finally {
-					closeConnection();
 				}
 			}
 
 		}).start();
+
 	}
 
 	@Override
@@ -228,21 +248,22 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		String msg = inputField.getText();
-		if (!msg.isEmpty()) {
-			try {
-				Message message = new Message(appController.getLoggedInUser().getNickname(), msg);
-				out.writeObject(message);
-				out.flush();
+		if (e.getSource() == sendButton || e.getSource() == inputField) {
+			if (!msg.trim().isEmpty()) {// 왜 그냥 .isEmpty나 .equals(null)은 안됐는지 모르겠어요
 
-				inputField.setText("");
-				inputField.setText(" ");
-				chatArea.revalidate();
-			} catch (IOException e1) {
-				e1.printStackTrace();
+				try {
+					Message message = new Message(userNickname, msg);
+					out.writeObject(message);
+					out.flush();
+
+					inputField.setText("");
+					inputField.setText(" ");
+					chatArea.revalidate();
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
 			}
-		}
-
-		if (e.getSource() == thickness) {
+		} else if (e.getSource() == thickness) {
 			String input = JOptionPane.showInputDialog(this, "두께를 입력하세요 (1 ~ 20)");
 			try {
 				int thickness = Integer.parseInt(input);
@@ -297,6 +318,14 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 					JOptionPane.OK_CANCEL_OPTION);
 
 			if (exit == JOptionPane.OK_OPTION) {
+				try {
+					out.writeObject(new Message("system", userNickname + "님이 퇴장하셨습니다."));
+					out.flush();
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				} finally {
+					closeConnection();
+				}
 				appController.dispose();
 			}
 		}

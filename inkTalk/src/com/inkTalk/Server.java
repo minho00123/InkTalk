@@ -24,16 +24,19 @@ public class Server implements Runnable {
 		this.socket = socket;
 
 		try {
-			out = new ObjectOutputStream(socket.getOutputStream());
-			out.flush();
-			in = new ObjectInputStream(socket.getInputStream());
-
-			clients.add(out);
-
-			for (Stroke stroke : drawData) {
-				out.writeObject(stroke);
+			if(clients.contains(out)) { //clients 중복 확인
+				out.writeBoolean(true);
 				out.flush();
+			}else {
+				out.writeBoolean(false);
+				out.flush();
+				clients.add(out);	
+				for (Stroke stroke : drawData) {
+					out.writeObject(stroke);
+					out.flush();
+				}
 			}
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

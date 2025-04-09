@@ -51,7 +51,7 @@ public class LoginUi extends JPanel implements ActionListener {
 		backgroundPanel.setPreferredSize(new Dimension(1200, 800));
 
 		// 로고 이미지
-		ImageIcon logoIcon = new ImageIcon("images/logo.jpg");
+		ImageIcon logoIcon = new ImageIcon("images/logo.png");
 		JLabel logoLabel = new JLabel(logoIcon);
 		logoLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 		this.add(backgroundPanel);
@@ -76,6 +76,7 @@ public class LoginUi extends JPanel implements ActionListener {
 		gbc.anchor = GridBagConstraints.WEST;
 		loginPanel.add(idField, gbc);
 		gbc.gridwidth = 1;
+		idField.addActionListener(this);
 
 		// 비밀번호
 		gbc.gridx = 0;
@@ -88,6 +89,7 @@ public class LoginUi extends JPanel implements ActionListener {
 		gbc.gridy = 1;
 		gbc.anchor = GridBagConstraints.WEST;
 		loginPanel.add(pwField, gbc);
+		pwField.addActionListener(this);
 
 		// 로그인 버튼
 		loginButton = new JButton("로그인");
@@ -141,54 +143,75 @@ public class LoginUi extends JPanel implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
+		String pw = new String(pwField.getPassword()).trim();
+		String nickName = new String(idField.getText()).trim();
 		// 로그인
 		if (e.getSource() == loginButton) {
-			String pw = new String(pwField.getPassword()).trim();
-			String nickName = new String(idField.getText()).trim();
-
-			// jdbc 연결
-			// 1. 닉네임과 비밀번호가 일치하지 않는 경우
-			// 2. 닉네임은 일치하나 비밀번호가 일치하지 않는 경우
-			// 3. 비밀번호는 일치하나 닉네임이 일치하지 않는 경우
-			Connection conn = JDBCTemplate.getConnection();
-			String sql = "SELECT USER_ID, PASSWORD FROM \"USER\" WHERE NICKNAME= ?";
-
-			try {
-				pstmt = conn.prepareStatement(sql);
-				pstmt.setString(1, nickName);
-
-				rs = pstmt.executeQuery();
-
-				if (rs != null && rs.next()) {
-
-					String dbPw = rs.getString("PASSWORD");
-					if (dbPw.equals(pw)) {
-						int userId = rs.getInt("USER_ID"); // 유저아이디 컬럼명 먼지 확인
-						User user = new User(userId, nickName);
-						controller.loginSuccess(user);
-					} else {
-						error.setText("비밀번호가 일치하지 않습니다. 다시 시도하세요.");
-					}
-				} else {// 로그인 실패
-					error.setText("등록되지 않은 닉네임입니다. 회원가입 후 이용해주세요.");
-
-				}
-			} catch (SQLException e1) {
-				e1.printStackTrace();
-			} finally {
-				try {
-					conn.close();
-					pstmt.close();
-					rs.close();
-				} catch (SQLException e1) {
-					e1.printStackTrace();
-				}
-
-			}
+			
+			DB_login(nickName,pw);
+			
 		} else if (e.getSource() == signUpButton) {
 
 			controller.show("SIGNUP");
+		}else if(e.getSource() == idField){
+			
+				DB_login(nickName,pw);
+			
+		}else if(e.getSource() == pwField) {
+			
+			DB_login(nickName,pw);
+	}
+}
+	public void DB_login(String nickName, String pw) {
+		
+
+		// jdbc 연결
+		// 1. 닉네임과 비밀번호가 일치하지 않는 경우
+		// 2. 닉네임은 일치하나 비밀번호가 일치하지 않는 경우
+		// 3. 비밀번호는 일치하나 닉네임이 일치하지 않는 경우
+		Connection conn = JDBCTemplate.getConnection();
+		String sql = "SELECT USER_ID, PASSWORD FROM \"USER\" WHERE NICKNAME= ?";
+
+		try {
+			
+			if(idField.getText().isEmpty()||pwField.getPassword().length==0) {
+				error.setText("아이디나 비밀번호를 입력하지 않으셨습니다.");
+			}else if(idField.getText().isEmpty()&&pwField.getPassword().length==0) {
+				error.setText("아이디와 비밀번호를 입력하신 후 로그인을 시도하세요.");
+			}else{
+				
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, nickName);
+			rs = pstmt.executeQuery();
+			
+			
+			if (rs != null && rs.next()) {
+
+				String dbPw = rs.getString("PASSWORD");
+				if (dbPw.equals(pw)) {
+					int userId = rs.getInt("USER_ID"); // 유저아이디 컬럼명 먼지 확인
+					User user = new User(userId, nickName);
+					controller.loginSuccess(user);
+				} else {
+					error.setText("비밀번호가 일치하지 않습니다. 다시 시도하세요.");
+				}
+			} else {// 로그인 실패
+				error.setText("등록되지 않은 닉네임입니다. 회원가입 후 이용해주세요.");
+			}
+			}
+		} catch (SQLException e1) {
+			e1.printStackTrace();
+		} finally {
+			try {
+				conn.close();
+				pstmt.close();
+				rs.close();
+			} catch (SQLException e1) {
+				e1.printStackTrace();
+			}
+
 		}
 	}
+	}
 
-}
+
