@@ -9,6 +9,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.io.EOFException;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -41,8 +42,8 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 	private ObjectOutputStream out = null;
 	private ObjectInputStream in = null;
 
-	Socket socket;
-	String userNickname;
+	private Socket socket;
+	private String userNickname;
 
 	// whiteboard related-fields
 	public JButton exit;
@@ -67,7 +68,8 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 	public Board(AppController appController, Socket socket) {
 		this.appController = appController;
 		this.socket = socket;
-
+		this.userNickname = appController.getLoggedInUser().getNickname();
+		
 		this.setLayout(new BorderLayout());
 		this.setPreferredSize(new Dimension(1200, 800));
 
@@ -169,6 +171,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 			@Override
 			public void run() {
 				try {
+					
 					// 중복 값 받기
 					Boolean isDuplicate = in.readBoolean();
 					if (isDuplicate) {
@@ -176,7 +179,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 						appController.show("LOGIN");
 						return;
 					}
-					userNickname = appController.getLoggedInUser().getNickname();
+					
 					out.writeObject(new Message("system", userNickname + "님이 입장하셨습니다."));
 					out.flush();
 
@@ -197,7 +200,10 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 								strokes.clear();
 								SwingUtilities.invokeLater(() -> canvas.repaint());
 							}
-						} catch (ClassNotFoundException e) {
+						} catch (EOFException e) {
+	                        System.out.println("서버와의 연결이 종료되었습니다.");
+	                        break;
+	                    } catch (IOException | ClassNotFoundException e) {
 							e.printStackTrace();
 							break;
 						}
@@ -205,11 +211,21 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 					}
 				} catch (IOException e) {
 					e.printStackTrace();
+					showConnectionError();
 				}
 			}
 
 		}).start();
 
+	}
+
+	protected void showConnectionError() {
+	    SwingUtilities.invokeLater(() -> {
+	        JOptionPane.showMessageDialog(this, "서버와의 연결에 문제가 발생했습니다. 프로그램을 종료합니다.");
+	        closeConnection();
+	        appController.dispose();
+	    });
+		
 	}
 
 	@Override
@@ -240,8 +256,12 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 				out.writeObject(currentStroke);
 				out.flush();
 			} catch (IOException e) {
-				throw new RuntimeException(e);
+				System.err.println("서버로 스트로크를 전송하는 중에 오류가 발생했습니다.");
+	            e.printStackTrace();
+				showConnectionError();
 			}
+		}else {
+	        System.err.println("출력 스트림(out)이 null입니다. 서버에 연결되어 있지 않습니다.");
 		}
 	}
 
@@ -250,17 +270,21 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 		String msg = inputField.getText();
 		if (e.getSource() == sendButton || e.getSource() == inputField) {
 			if (!msg.trim().isEmpty()) {// 왜 그냥 .isEmpty나 .equals(null)은 안됐는지 모르겠어요
-
 				try {
 					Message message = new Message(userNickname, msg);
-					out.writeObject(message);
-					out.flush();
-
-					inputField.setText("");
-					inputField.setText(" ");
-					chatArea.revalidate();
+					if(out != null) {
+						out.writeObject(message);
+						out.flush();
+						
+						inputField.setText("");
+						inputField.setText(" ");
+						chatArea.revalidate();
+					}else {
+						System.err.println("출력 스트림(out)이 null입니다. 서버에 연결되어 있지 않습니다.");
+					}
 				} catch (IOException e1) {
 					e1.printStackTrace();
+					showConnectionError();
 				}
 			}
 		} else if (e.getSource() == thickness) {
