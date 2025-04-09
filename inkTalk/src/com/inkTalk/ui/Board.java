@@ -65,10 +65,12 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 	public Board(AppController appController, Socket socket) {
 		this.appController = appController;
 		this.socket = socket;
-
+		this.setLayout(new BorderLayout());
+		this.setPreferredSize(1200,800);
+		
 		// whiteboard UI
 		JPanel whiteboard = new JPanel(new BorderLayout());
-		whiteboard.setPreferredSize(new Dimension(800, 800));
+		whiteboard.setPreferredSize(new Dimension(880, 800));
 		canvas = new Canvas(strokes);
 		canvas.setBackground(Color.WHITE);
 		canvas.addMouseListener(this);
@@ -119,8 +121,9 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 
 		chatArea.setBackground(new Color(209, 229, 240));
 		inputField = new JTextField();
-
-		inputField.setBackground(new Color(169, 168, 217));
+		inputField.addActionListener(this);
+		
+		inputField.setBackground(new Color(169, 198, 217));
 		sendButton = new JButton("전송");
 		sendButton.setBackground(new Color(1, 13, 38));
 		sendButton.setForeground(Color.WHITE);
@@ -147,6 +150,11 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 		}
 
 		startReceivingMessages();
+	}
+
+	private void setPreferredSize(int i, int j) {
+		// TODO Auto-generated method stub
+		
 	}
 
 	private ImageIcon resizeIcon(String path, int width, int height) {
@@ -222,7 +230,9 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		String msg = inputField.getText();
-		if (!msg.isEmpty()) {
+		if(e.getSource()==sendButton||e.getSource()==inputField) {
+			if (!msg.trim().isEmpty()) {//왜 그냥 .isEmpty나 .equals(null)은 안됐는지 모르겠어요
+				
 			try {
 				Message message = new Message(appController.getLoggedInUser().getNickname(), msg);
 				out.writeObject(message);
@@ -235,8 +245,8 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 				e1.printStackTrace();
 			}
 		}
-
-		if (e.getSource() == thickness) {
+		}
+		else if (e.getSource() == thickness) {
 			String input = JOptionPane.showInputDialog(this, "두께를 입력하세요 (1 ~ 20)");
 			try {
 				int thickness = Integer.parseInt(input);
