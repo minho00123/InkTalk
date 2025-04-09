@@ -9,6 +9,12 @@ import java.awt.GridBagLayout;
 import java.awt.Image;
 import java.awt.Insets;
 import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -19,110 +25,148 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
-public class LoginUi extends JPanel {
+import com.inkTalk.app.AppController;
+import com.inkTalk.domain.User;
+import com.inkTalk.jdbc.JDBCTemplate;
 
+public class LoginUi extends JPanel implements ActionListener {
+	private PreparedStatement pstmt;
+	private ResultSet rs;
+
+	private AppController controller;
 	public JButton loginButton, signUpButton;
 	JTextField idField;
 	JPasswordField pwField;
 	JLabel error;
-	
-    public LoginUi() {
-    	setLayout(new BorderLayout());
-    	this.setPreferredSize(new Dimension(1200, 800));
-    	
-        // ÀüÃ¼ ¹è°æ ÆĞ³Î
-        JPanel backgroundPanel = new JPanel(new GridBagLayout());
-        backgroundPanel.setBackground(new Color(209, 229, 240)); // ¿¬ÆÄ¶û
-        backgroundPanel.setPreferredSize(new Dimension(1200,800));
-        // ·Î°í ÀÌ¹ÌÁö
-        ImageIcon logoIcon = new ImageIcon("images/logo.jpg"); // ·Î°í ÀÌ¹ÌÁö °æ·Î
-        JLabel logoLabel = new JLabel(logoIcon);
-        logoLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        this.add(backgroundPanel);
 
-     // ·Î±×ÀÎ ÆĞ³Î
-        JPanel loginPanel = new JPanel(new GridBagLayout());
-        loginPanel.setPreferredSize(new Dimension(350, 150));
-        loginPanel.setBackground(new Color(179, 206, 224));
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5, 10, 5, 10); // ¿©¹é
+	public LoginUi(AppController controller) {
+		this.controller = controller;
 
-        // ´Ğ³×ÀÓ
-        gbc.gridx = 0; gbc.gridy = 0;
-        gbc.anchor = GridBagConstraints.EAST;
-        loginPanel.add(new JLabel("´Ğ³×ÀÓ"), gbc);
+		setLayout(new BorderLayout());
+		this.setPreferredSize(new Dimension(1200, 800));
 
-        idField = new JTextField(12);
-        gbc.gridx = 1; gbc.gridy = 0;
-        gbc.gridwidth = 2;
-        gbc.anchor = GridBagConstraints.WEST;
-        loginPanel.add(idField, gbc);
-        gbc.gridwidth = 1; // ÃÊ±âÈ­
+		// ì „ì²´ ë°°ê²½ íŒ¨ë„
+		JPanel backgroundPanel = new JPanel(new GridBagLayout());
+		backgroundPanel.setBackground(new Color(209, 229, 240));
+		backgroundPanel.setPreferredSize(new Dimension(1200, 800));
+		// ë¡œê³  ì´ë¯¸ì§€
+		ImageIcon logoIcon = new ImageIcon("images/logo.jpg");
+		JLabel logoLabel = new JLabel(logoIcon);
+		logoLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+		this.add(backgroundPanel);
 
-        // ºñ¹Ğ¹øÈ£
-        gbc.gridx = 0; gbc.gridy = 1;
-        gbc.anchor = GridBagConstraints.EAST;
-        loginPanel.add(new JLabel("ºñ¹Ğ¹øÈ£"), gbc);
+		// ë¡œê·¸ì¸ íŒ¨ë„
+		JPanel loginPanel = new JPanel(new GridBagLayout());
+		loginPanel.setPreferredSize(new Dimension(350, 150));
+		loginPanel.setBackground(new Color(179, 206, 224));
+		GridBagConstraints gbc = new GridBagConstraints();
+		gbc.insets = new Insets(5, 10, 5, 10);
 
-        pwField = new JPasswordField(12);
-        gbc.gridx = 1; gbc.gridy = 1;
-        gbc.anchor = GridBagConstraints.WEST;
-        loginPanel.add(pwField, gbc);
+		// ë‹‰ë„¤ì„
+		gbc.gridx = 0;
+		gbc.gridy = 0;
+		gbc.anchor = GridBagConstraints.EAST;
+		loginPanel.add(new JLabel("ë‹‰ë„¤ì„"), gbc);
 
-        // ·Î±×ÀÎ ¹öÆ° (°°Àº ÁÙ¿¡ ¿À¸¥ÂÊ ¹èÄ¡)
-        loginButton = new JButton("·Î±×ÀÎ");
-        loginButton.setBackground(new Color(11, 29, 49));
-        loginButton.setForeground(Color.WHITE);
+		idField = new JTextField(12);
+		gbc.gridx = 1;
+		gbc.gridy = 0;
+		gbc.gridwidth = 2;
+		gbc.anchor = GridBagConstraints.WEST;
+		loginPanel.add(idField, gbc);
+		gbc.gridwidth = 1; // ï¿½Ê±ï¿½È­
 
-        // ÇÊµå 2°³ ³ôÀÌ ±âÁØÀ¸·Î ¹öÆ° ³ôÀÌ ¼³Á¤ (¼±ÅÃ »çÇ×, ¼öµ¿ Á¶Àı °¡´É)
-        int totalHeight = pwField.getPreferredSize().height * 2 + 20;  // ½ÇÁúÀû ¹öÆ° ¼¼·ÎÅ©±â Á¶Àı
-        loginButton.setPreferredSize(new Dimension(70, totalHeight));
+		// ë¹„ë°€ë²ˆí˜¸
+		gbc.gridx = 0;
+		gbc.gridy = 1;
+		gbc.anchor = GridBagConstraints.EAST;
+		loginPanel.add(new JLabel("ë¹„ë°€ë²ˆí˜¸"), gbc);
 
-        // ·Î±×ÀÎ ¹öÆ°À» 2ÇàÀ» Â÷ÁöÇÏ°Ô ¼³Á¤
-        gbc.gridx = 2;
-        gbc.gridy = 0;
-        gbc.gridheight = 2;
-        gbc.anchor = GridBagConstraints.NORTH; // À§ÂÊ Á¤·Ä
-        gbc.insets = new Insets(0, 10, 0, 0);  // ¿ŞÂÊ ¿©¹é
-        loginPanel.add(loginButton, gbc);
+		pwField = new JPasswordField(12);
+		gbc.gridx = 1;
+		gbc.gridy = 1;
+		gbc.anchor = GridBagConstraints.WEST;
+		loginPanel.add(pwField, gbc);
 
-       
-        gbc.gridheight = 1; // gridheight´Â ´Ù½Ã 1·Î µ¹·Á³ö¾ß ´Ù¸¥ ÄÄÆ÷³ÍÆ®¿¡ ¿µÇâ ¾øÀ½
-        
-        // È¸¿ø°¡ÀÔ ¹öÆ° (¾Æ·¡ ÁÙ, Áß¾Ó Á¤·Ä)
-        signUpButton = new JButton("È¸¿ø°¡ÀÔ");
-        signUpButton.setBackground(new Color(11, 29, 49));
-        signUpButton.setForeground(Color.WHITE);
-        gbc.gridx = 0; gbc.gridy = 2;
-        gbc.gridwidth = 3;
-        gbc.anchor = GridBagConstraints.CENTER;
-        loginPanel.add(signUpButton, gbc);
-        
-        error = new JLabel("¿¡·¯Ç¥½Ã");
-        error.setForeground(Color.RED);
-        gbc.gridx = 0; gbc.gridy = 3;
-        gbc.gridwidth = 4;
-        gbc.anchor = GridBagConstraints.CENTER;
-        loginPanel.add(error, gbc);
-        
+		// ë¡œê·¸ì¸ ë²„íŠ¼
+		loginButton = new JButton("ë¡œê·¸ì¸");
+		loginButton.setBackground(new Color(11, 29, 49));
+		loginButton.setForeground(Color.WHITE);
 
-        // ¼öÁ÷ Á¤·ÄÀ» À§ÇÑ ¹Ú½º
-        JPanel verticalBox = new JPanel();
-        verticalBox.setLayout(new BoxLayout(verticalBox, BoxLayout.Y_AXIS));
-        verticalBox.setOpaque(false);
-        verticalBox.add(logoLabel);
-        verticalBox.add(Box.createVerticalStrut(30));
-        verticalBox.add(loginPanel);
+		int totalHeight = pwField.getPreferredSize().height * 2 + 20;
+		loginButton.setPreferredSize(new Dimension(70, totalHeight));
 
-        backgroundPanel.add(verticalBox, new GridBagConstraints());
-        Toolkit kit = Toolkit.getDefaultToolkit();
-        Image img = kit.getImage("images/logoicon.jpg");
-    }
-    
-    
+		// ë¡œê·¸ì¸ ë²„íŠ¼ì„ 2í–‰ì„ ì°¨ì§€í•˜ê²Œ ì„¤ì •
+		gbc.gridx = 2;
+		gbc.gridy = 0;
+		gbc.gridheight = 2;
+		gbc.anchor = GridBagConstraints.NORTH;
+		gbc.insets = new Insets(0, 10, 0, 0);
+		loginPanel.add(loginButton, gbc);
 
-//    public static void main(String[] args) {
-//       new LoginUI();
-    }//±×³É new loginUI·Î Ã³¸®ÇÒ ¼öµµ ÀÖÀ¸³ª, ±×·¯¸é ³ªÁß¿¡ ¼­¹ö¿Í Åë½ÅÇÏ°í ÀÀ´äÀ» ´ë±â¹Ş´Â »óÈ²ÀÌ ¹ß»ı½Ã Åë½ÅÀÌ ¿À·¡°É¸®¸é UI°¡ ¸ØÃâ ¼ö ÀÖÀ¸¹Ç·Î
-    //ÀÌ¸¦ ¹é±×¶ó¿îµå¿¡¼­ ¼öÇà ÈÄ °á°ú¸¸ EDT·Î ¹Ş´Â°Ô ³ªÀ½ + ½ºÀ®Àº ´ÜÀÏ½º·¹µå°¡ ±âº»ÀÌ¶ó Ãæµ¹À» ÇÇÇÏ·Á¸é EDT¿¡¼­ ¼öÇàÇÏ´Â°É ±ÇÀåÇÑ´Ù°í(?)
-    //EDT : ÀÌº¥Æ®¸¦ ½ÇÇàÇÏ´Â ½º·¹µå : ÀÏ¹İÀûÀÎ ½ºÀ® ¾ÖÇÃ¸®ÄÉÀÌ¼ÇÀÇ main ¸Ş¼Òµå´Â GUI¸¦ ±¸µ¿ÇÏ´Â Runnable °´Ã¼¸¦ »ı¼ºÇÏ¿©, event dispatch thread¿¡¼­ ½ÇÇàµÇµµ·Ï ¿äÃ»ÇÏ´Â ÄÚµå
+		gbc.gridheight = 1;
+		// íšŒì›ê°€ì… ë²„íŠ¼ (ì•„ë˜ ì¤„, ì¤‘ì•™ ì •ë ¬)
+		signUpButton = new JButton("íšŒì›ê°€ì…");
+		signUpButton.setBackground(new Color(11, 29, 49));
+		signUpButton.setForeground(Color.WHITE);
+		gbc.gridx = 0;
+		gbc.gridy = 2;
+		gbc.gridwidth = 3;
+		gbc.anchor = GridBagConstraints.CENTER;
+		loginPanel.add(signUpButton, gbc);
+
+		error = new JLabel("ë¹„ë°€ë²ˆí˜¸ ì—ëŸ¬");
+		error.setForeground(Color.RED);
+		gbc.gridx = 0;
+		gbc.gridy = 3;
+		gbc.gridwidth = 4;
+		gbc.anchor = GridBagConstraints.CENTER;
+		loginPanel.add(error, gbc);
+
+		// ìˆ˜ì§ ì •ë ¬ì„ ìœ„í•œ ë°•ìŠ¤
+		JPanel verticalBox = new JPanel();
+		verticalBox.setLayout(new BoxLayout(verticalBox, BoxLayout.Y_AXIS));
+		verticalBox.setOpaque(false);
+		verticalBox.add(logoLabel);
+		verticalBox.add(Box.createVerticalStrut(30));
+		verticalBox.add(loginPanel);
+
+		backgroundPanel.add(verticalBox, new GridBagConstraints());
+		Toolkit kit = Toolkit.getDefaultToolkit();
+		Image img = kit.getImage("images/logoicon.jpg");
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		// ë¡œê·¸ì¸
+		if (e.getSource() == loginButton) {
+			String pw = new String(pwField.getPassword());
+			String nickName = new String(idField.getText());
+
+			// jdbc ì—°ê²°
+			Connection conn = JDBCTemplate.getConnection();
+			String sql = "SELECT NICKNAME FROM USER WHERE NICKNAME= ? AND PASSWORD = ?";
+			try {
+				pstmt = conn.prepareStatement(sql);
+				pstmt.setString(1, nickName);
+				pstmt.setString(2, pw);
+				rs = pstmt.executeQuery();
+
+				if (rs != null && rs.next()) {
+					int userId = rs.getInt("USER_ID"); // ìœ ì €ì•„ì´ë”” ì»¬ëŸ¼ëª… ë¨¼ì§€ í™•ì¸
+					User user = new User(userId, nickName);
+					controller.loginSuccess(user);
+				} else {// ë¡œê·¸ì¸ ì‹¤íŒ¨
+					System.out.println("ë¡œê·¸ì¸ ì‹¤íŒ¨");
+					error.setText("ë‹‰ë„¤ì„ ë˜ëŠ” ë¹„ë°€ë²ˆí˜¸ê°€ ì˜¬ë°”ë¥´ì§€ ì•ŠìŠµë‹ˆë‹¤.");// ì–´ë”” ëœ¨ëŠ” ì—ëŸ¬ì•¼
+
+				}
+			} catch (SQLException e1) {
+				e1.printStackTrace();
+			}
+		} else if (e.getSource() == signUpButton) {
+
+		}
+	}
+
+}

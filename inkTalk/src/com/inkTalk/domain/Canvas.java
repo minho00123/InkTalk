@@ -1,8 +1,7 @@
-package com.inkTalk.ui;
-
-import com.inkTalk.Stroke;
+package com.inkTalk.domain;
 
 import javax.swing.*;
+
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;

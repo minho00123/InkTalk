@@ -31,20 +31,21 @@ import javax.swing.JTextField;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
 
-import com.inkTalk.Message;
-import com.inkTalk.Stroke;
+import com.inkTalk.app.AppController;
+import com.inkTalk.domain.Canvas;
+import com.inkTalk.domain.Message;
+import com.inkTalk.domain.Stroke;
 
 public class Board extends JPanel implements ActionListener, MouseListener, MouseMotionListener {
 	private ObjectOutputStream out = null;
 	private ObjectInputStream in = null;
 
 	Socket socket;
-	String msg;
-	String nickName;
+	String nickname;
 
 	// whiteboard related-fields
 	public JButton exit;
-	ClientMain main;
+	AppController appController;
 	Canvas canvas;
 	ArrayList<Stroke> strokes = new ArrayList<>();
 	Stroke currentStroke = null;
@@ -61,10 +62,11 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 	JTextField inputField;
 	JButton sendButton;
 
-	public Board(ClientMain main, Socket socket, String nickName) {
-		this.main = main;
+	public Board(AppController appController, Socket socket) {
+		
+		System.out.println("보드 왔음");
+		this.appController = appController;
 		this.socket = socket;
-		this.nickName = nickName;
 
 		// whiteboard UI
 		JPanel whiteboard = new JPanel(new BorderLayout());
@@ -135,7 +137,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 
 		add(whiteboard, BorderLayout.CENTER);
 		add(chatboard, BorderLayout.EAST);
-		
+
 		try {
 			OutputStream os = socket.getOutputStream();
 			InputStream is = socket.getInputStream();
@@ -163,22 +165,24 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 			@Override
 			public void run() {
 				try {
-		            while (true) {
-		                Object obj = in.readObject();
-		                if (obj instanceof Stroke) {
-		                    strokes.add((Stroke) obj);
-		                    SwingUtilities.invokeLater(() -> canvas.repaint());
-		                } else if (obj instanceof Message) {
-		                    Message msg = (Message) obj;
-		                    SwingUtilities.invokeLater(() -> {
-		                        chatArea.append(msg.getNickName() + " : " + msg.getMsg() + "\n");
-		                        chatArea.revalidate();
-		                    });
-		                }
-		            }
-		        } catch (IOException | ClassNotFoundException e) {
-		            e.printStackTrace();
-		        }
+					while (true) {
+						Object obj = in.readObject();
+						if (obj instanceof Stroke) {
+							strokes.add((Stroke) obj);
+							SwingUtilities.invokeLater(() -> canvas.repaint());
+						} else if (obj instanceof Message) {
+							Message msg = (Message) obj;
+							SwingUtilities.invokeLater(() -> {
+								chatArea.append(msg.getNickName() + " : " + msg.getMsg() + "\n");
+								chatArea.revalidate();
+							});
+						}
+					}
+				} catch (IOException | ClassNotFoundException e) {
+					e.printStackTrace();
+				} finally {
+					closeConnection();
+				}
 			}
 
 		}).start();
@@ -222,7 +226,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 		String msg = inputField.getText();
 		if (!msg.isEmpty()) {
 			try {
-				Message message = new Message(nickName, msg);
+				Message message = new Message(appController.getLoggedInUser().getNickname(), msg);
 				out.writeObject(message);
 				out.flush();
 
@@ -274,7 +278,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 					JOptionPane.OK_CANCEL_OPTION);
 
 			if (exit == JOptionPane.OK_OPTION) {
-				main.dispose();
+				appController.dispose();
 			}
 		}
 	}
@@ -304,5 +308,4 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 	@Override
 	public void mouseExited(MouseEvent e) {
 	}
-
 }

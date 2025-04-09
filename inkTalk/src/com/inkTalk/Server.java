@@ -8,9 +8,10 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
+
+import com.inkTalk.domain.Message;
+import com.inkTalk.domain.Stroke;
 
 public class Server implements Runnable {
 	private static final List<ObjectOutputStream> clients = new ArrayList<>();
