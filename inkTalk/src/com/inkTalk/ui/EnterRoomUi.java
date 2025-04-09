@@ -24,7 +24,6 @@ public class EnterRoomUi extends JPanel implements ActionListener {
 		this.controller = appController;
 		this.room = room;
 
-		System.out.println("Enter Room 왔음~");
 		controller.show("BOARD");
 	}
 

@@ -49,6 +49,7 @@ public class LoginUi extends JPanel implements ActionListener {
 		JPanel backgroundPanel = new JPanel(new GridBagLayout());
 		backgroundPanel.setBackground(new Color(209, 229, 240));
 		backgroundPanel.setPreferredSize(new Dimension(1200, 800));
+
 		// 로고 이미지
 		ImageIcon logoIcon = new ImageIcon("images/logo.jpg");
 		JLabel logoLabel = new JLabel(logoIcon);
@@ -74,7 +75,7 @@ public class LoginUi extends JPanel implements ActionListener {
 		gbc.gridwidth = 2;
 		gbc.anchor = GridBagConstraints.WEST;
 		loginPanel.add(idField, gbc);
-		gbc.gridwidth = 1; // �ʱ�ȭ
+		gbc.gridwidth = 1;
 
 		// 비밀번호
 		gbc.gridx = 0;
@@ -95,6 +96,7 @@ public class LoginUi extends JPanel implements ActionListener {
 
 		int totalHeight = pwField.getPreferredSize().height * 2 + 20;
 		loginButton.setPreferredSize(new Dimension(70, totalHeight));
+		loginButton.addActionListener(this);
 
 		// 로그인 버튼을 2행을 차지하게 설정
 		gbc.gridx = 2;
@@ -145,11 +147,12 @@ public class LoginUi extends JPanel implements ActionListener {
 
 			// jdbc 연결
 			Connection conn = JDBCTemplate.getConnection();
-			String sql = "SELECT NICKNAME FROM USER WHERE NICKNAME= ? AND PASSWORD = ?";
+			String sql = "SELECT USER_ID FROM \"USER\" WHERE NICKNAME= ? AND PASSWORD = ?";
 			try {
 				pstmt = conn.prepareStatement(sql);
 				pstmt.setString(1, nickName);
 				pstmt.setString(2, pw);
+
 				rs = pstmt.executeQuery();
 
 				if (rs != null && rs.next()) {

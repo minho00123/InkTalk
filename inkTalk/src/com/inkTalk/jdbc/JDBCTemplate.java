@@ -7,87 +7,92 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.Properties;
 
+import oracle.jdbc.driver.OracleDriver;
+
 public class JDBCTemplate {
 	private static Connection conn = null;
 
 	public static Connection getConnection() {
-		
+
 		try {
-			
-			if(conn == null || conn.isClosed() ) {
-				
+
+			if (conn == null || conn.isClosed()) {
+
 				Properties prop = new Properties();
-				
-				prop.loadFromXML( new FileInputStream("driver.xml") );
-				
+
+				prop.loadFromXML(new FileInputStream("src/com/inkTalk/jdbc/driver.xml"));
+
 				String driver = prop.getProperty("driver");
 				String url = prop.getProperty("url");
 				String user = prop.getProperty("user");
 				String password = prop.getProperty("password");
+
 				// Oracle JDBC Driver 객체 메모리 로드
-				
+				Class.forName(driver);
 				conn = DriverManager.getConnection(url, user, password);
-				
+
 				// 자동 커밋 비활성화
 				conn.setAutoCommit(false);
 			}
-			
-			
-		}catch(Exception e) {
+
+		} catch (Exception e) {
 			System.out.println("[Connection 생성 중 예외 발생]");
 			e.printStackTrace();
 		}
-		
+
 		return conn;
-		
+
 	}
-	
+
 	public static void close(Connection conn) {
-		
+
 		try {
-			if(conn != null && !conn.isClosed()) conn.close();
-			
-		} catch(Exception e) {
+			if (conn != null && !conn.isClosed())
+				conn.close();
+
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
 	public static void close(Statement stmt) {
 		try {
-			
-			if(stmt != null && !stmt.isClosed()) stmt.close();
-			
-		} catch(Exception e) {
+
+			if (stmt != null && !stmt.isClosed())
+				stmt.close();
+
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
-	
 
 	public static void close(ResultSet rs) {
 		try {
-			if(rs != null && !rs.isClosed()) rs.close(); 
-		} catch(Exception e) {
+			if (rs != null && !rs.isClosed())
+				rs.close();
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
 	public static void commit(Connection conn) {
-		
+
 		try {
-			if(conn != null && !conn.isClosed() ) conn.commit();
-		} catch(Exception e) {
+			if (conn != null && !conn.isClosed())
+				conn.commit();
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public static void rollback(Connection conn) {
-		
+
 		try {
-			if(conn != null && !conn.isClosed() ) conn.rollback();
-		} catch(Exception e) {
+			if (conn != null && !conn.isClosed())
+				conn.rollback();
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
-	
-	
+
 }

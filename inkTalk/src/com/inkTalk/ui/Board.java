@@ -63,8 +63,6 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 	JButton sendButton;
 
 	public Board(AppController appController, Socket socket) {
-		
-		System.out.println("보드 왔음");
 		this.appController = appController;
 		this.socket = socket;
 
