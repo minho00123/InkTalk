@@ -150,11 +150,10 @@ public class LoginUi extends JPanel implements ActionListener {
 			// 2. 닉네임은 일치하나 비밀번호가 일치하지 않는 경우
 			// 3. 비밀번호는 일치하나 닉네임이 일치하지 않는 경우
 			Connection conn = JDBCTemplate.getConnection();
-			String sql = "SELECT USER_ID FROM \"USER\" WHERE NICKNAME= ? AND PASSWORD = ?";
+			String sql = "SELECT USER_ID, PASSWORD FROM \"USER\" WHERE NICKNAME= ?";
 			try {
 				pstmt = conn.prepareStatement(sql);
 				pstmt.setString(1, nickName);
-				pstmt.setString(2, pw);
 
 				rs = pstmt.executeQuery();
 
