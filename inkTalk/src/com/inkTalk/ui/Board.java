@@ -41,7 +41,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 	private ObjectInputStream in = null;
 
 	Socket socket;
-	String nickname;
+	String userNickname;
 
 	// whiteboard related-fields
 	public JButton exit;
@@ -65,7 +65,6 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 	public Board(AppController appController, Socket socket) {
 		this.appController = appController;
 		this.socket = socket;
-
 		// whiteboard UI
 		JPanel whiteboard = new JPanel(new BorderLayout());
 		whiteboard.setPreferredSize(new Dimension(800, 800));
@@ -163,27 +162,44 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 			@Override
 			public void run() {
 				try {
-					while (true) {
-						Object obj = in.readObject();
-						if (obj instanceof Stroke) {
-							strokes.add((Stroke) obj);
-							SwingUtilities.invokeLater(() -> canvas.repaint());
-						} else if (obj instanceof Message) {
-							Message msg = (Message) obj;
-							SwingUtilities.invokeLater(() -> {
-								chatArea.append(msg.getNickName() + " : " + msg.getMsg() + "\n");
-								chatArea.revalidate();
-							});
-						}
+					//중복 값 받기
+					Boolean isDuplicate = in.readBoolean();
+					if(isDuplicate) {
+						JOptionPane.showMessageDialog(null, "이미 로그인한 회원입니다.");
+						appController.show("LOGIN");
+						return;
 					}
-				} catch (IOException | ClassNotFoundException e) {
+					userNickname = appController.getLoggedInUser().getNickname();
+					out.writeObject(new Message("system" ,userNickname+"님이 입장하셨습니다."));
+					out.flush();
+					  while (true) {
+					        try {
+					            Object obj = in.readObject();  // 서버에서 오는 객체를 읽어옴
+					            if (obj instanceof Stroke) {
+					                // 그리기 데이터 수신
+					                strokes.add((Stroke) obj);
+					                SwingUtilities.invokeLater(() -> canvas.repaint());
+					            } else if (obj instanceof Message) {
+					                // 메시지 수신
+					                Message msg = (Message) obj;
+					                SwingUtilities.invokeLater(() -> {
+					                    chatArea.append(msg.getNickName() + " : " + msg.getMsg() + "\n");
+					                    chatArea.revalidate();
+					                });
+					            }
+					        } catch (IOException | ClassNotFoundException e) {
+					            // 예외 처리 (연결 끊어짐 또는 잘못된 데이터 수신 시)
+					            e.printStackTrace();
+					            break;  // 예외 발생 시, while 문을 종료하고 연결을 종료
+					        }
+					  }
+				} catch (IOException e) {
 					e.printStackTrace();
-				} finally {
-					closeConnection();
 				}
 			}
 
 		}).start();
+
 	}
 
 	@Override
@@ -224,7 +240,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 		String msg = inputField.getText();
 		if (!msg.isEmpty()) {
 			try {
-				Message message = new Message(appController.getLoggedInUser().getNickname(), msg);
+				Message message = new Message(userNickname, msg);
 				out.writeObject(message);
 				out.flush();
 
@@ -276,6 +292,14 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 					JOptionPane.OK_CANCEL_OPTION);
 
 			if (exit == JOptionPane.OK_OPTION) {
+				try {
+					out.writeObject(new Message("system", userNickname + "님이 퇴장하셨습니다."));
+					out.flush();
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				} finally {
+					closeConnection();
+				}
 				appController.dispose();
 			}
 		}
