@@ -1,4 +1,4 @@
-package com.inkTalk;
+package com.inkTalk.domain;
 
 import java.io.Serializable;
 

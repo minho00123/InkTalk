@@ -18,7 +18,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
-import com.inkTalk.Message;
+import com.inkTalk.domain.Message;
 
 public class Chatboard extends JPanel implements ActionListener {
 	JTextArea chatArea;
@@ -126,4 +126,6 @@ public class Chatboard extends JPanel implements ActionListener {
 			e.printStackTrace();
 		}
 	}
+
+
 }
