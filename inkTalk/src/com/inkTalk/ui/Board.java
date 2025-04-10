@@ -402,14 +402,17 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 		} else if (e.getSource() == thickness) {
 			String input = JOptionPane.showInputDialog(this, "두께를 입력하세요 (1 ~ 20)");
 			try {
-				int thickness = Integer.parseInt(input);
-				currentThickness = Math.max(1, Math.min(20, thickness));
+				if(input != null) {
+					int thickness = Integer.parseInt(input);
+					currentThickness = Math.max(1, Math.min(20, thickness));
 
-				if (currentColor.equals(Color.WHITE)) {
-					currentColor = Color.BLACK;
+					if (currentColor.equals(Color.WHITE)) {
+						currentColor = Color.BLACK;
+					}
 				}
-			} catch (NumberFormatException ignored) {
 
+			} catch (NumberFormatException ignored) {
+				
 			}
 		} else if (e.getSource() == palette) {
 			Color pickedColor = JColorChooser.showDialog(this, "색상 선택", currentColor);
@@ -420,9 +423,11 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 		} else if (e.getSource() == eraser) {
 			try {
 				String input = JOptionPane.showInputDialog(this, "두께를 입력하세요 (1 ~ 20)");
-				int thickness = Integer.parseInt(input);
-				currentThickness = Math.max(1, Math.min(20, thickness));
-				currentColor = Color.WHITE;
+				if(input != null&& !input.isEmpty()) {
+					int thickness = Integer.parseInt(input.trim());
+					currentThickness = Math.max(1, Math.min(20, thickness));
+					currentColor = Color.WHITE;
+				}
 			} catch (NumberFormatException ignored) {
 				ignored.printStackTrace();
 
