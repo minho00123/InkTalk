@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Image;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -21,6 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.imageio.ImageIO;
+import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -33,6 +36,7 @@ import javax.swing.JTextPane;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
 import javax.swing.text.BadLocationException;
+import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
@@ -98,21 +102,25 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 		save = new JButton(resizeIcon("saveFile.png", 50, 50));
 		exit = new JButton(resizeIcon("exit.png", 50, 50));
 
-		JButton[] buttons = { thickness, palette, eraser, clearAll, save, exit };
+		JButton[] buttons = { thickness, palette, eraser, clearAll, save,exit };
 		for (JButton button : buttons) {
-			button.setPreferredSize(new Dimension(100, 50));
-			button.setMaximumSize(new Dimension(100, 50));
-			button.setMinimumSize(new Dimension(100, 50));
+			toolBar.add(Box.createVerticalStrut(10));
+			button.setPreferredSize(new Dimension(100, 70));
+			button.setMaximumSize(new Dimension(100, 70));
+			button.setMinimumSize(new Dimension(100, 70));
+			button.setBorder(BorderFactory.createEmptyBorder());
+			button.setRolloverEnabled(true);
+			button.setOpaque(false);
 			button.setFocusable(false);
 			button.addActionListener(this);
-			toolBar.add(button);
-
-			if (button == exit) {
-				toolBar.addSeparator();
-				toolBar.add(button);
+			if(button == exit) {
+				continue;
 			}
+			toolBar.add(button);
 		}
-
+		toolBar.add(Box.createVerticalGlue());
+		toolBar.add(exit);
+		
 		toolBar.setBackground(new Color(213, 231, 242));
 
 		whiteboard.add(toolBar, BorderLayout.WEST);
@@ -121,16 +129,18 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 		// chatboard UI
 		JPanel chatboard = new JPanel(new BorderLayout());
 		chatboard.setPreferredSize(new Dimension(300, 800));
-
 		JPanel chatPanel = new JPanel(new BorderLayout());
 		chatPanel.setBackground(new Color(209, 229, 240));
+		
 		chatArea = new JTextPane();
 		chatArea.setEditable(false);
+		chatArea.setMargin(new Insets(15,10,10,10));
 		JScrollPane scroll = new JScrollPane(chatArea);
 		chatPanel.add(scroll, BorderLayout.CENTER);
 
 		chatArea.setBackground(new Color(209, 229, 240));
 		inputField = new JTextField();
+		inputField.setBorder(null);
 		inputField.addActionListener(this);
 
 		inputField.setBackground(new Color(169, 198, 217));
@@ -227,6 +237,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 
 	private void appendMessage(Message msg) {
 		StyledDocument doc = chatArea.getStyledDocument();
+		SimpleAttributeSet style = new SimpleAttributeSet();
 
 		try {
 			if (msg.getNickName().equals("system")) {
@@ -242,6 +253,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 					StyleConstants.setForeground(nickStyle, msg.getNameColor());
 					StyleConstants.setBold(nickStyle, true);
 
+
 					// 나머지 메시지 스타일 (검정색)
 					Style restStyle = chatArea.addStyle("JoinMsg", null);
 					StyleConstants.setForeground(restStyle, Color.BLACK);
@@ -251,6 +263,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 					StyleConstants.setForeground(systemStyle, Color.BLACK);
 					StyleConstants.setBold(systemStyle, true);
 
+					
 					doc.insertString(doc.getLength(), "system", systemStyle);
 					doc.insertString(doc.getLength(), " : ", restStyle);
 					doc.insertString(doc.getLength(), nickname, nickStyle);
@@ -264,14 +277,15 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 					Style nickStyle = chatArea.addStyle("ExitNick", null);
 					StyleConstants.setForeground(nickStyle, msg.getNameColor());
 					StyleConstants.setBold(nickStyle, true);
-
+					
 					Style restStyle = chatArea.addStyle("ExitMsg", null);
 					StyleConstants.setForeground(restStyle, Color.BLACK);
-
+					
 					Style systemStyle = chatArea.addStyle("System", null);
 					StyleConstants.setForeground(systemStyle, Color.BLACK);
 					StyleConstants.setBold(systemStyle, true);
 
+					
 					doc.insertString(doc.getLength(), "system", systemStyle);
 					doc.insertString(doc.getLength(), " : ", restStyle);
 					doc.insertString(doc.getLength(), nickname, nickStyle);
@@ -282,7 +296,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 					Style sysStyle = chatArea.addStyle("SystemMsg", null);
 					StyleConstants.setForeground(sysStyle, Color.DARK_GRAY);
 					StyleConstants.setItalic(sysStyle, true);
-
+					
 					doc.insertString(doc.getLength(), "system : " + content + "\n", sysStyle);
 				}
 			} else {
