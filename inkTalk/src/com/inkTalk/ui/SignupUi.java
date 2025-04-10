@@ -288,6 +288,8 @@ public class SignupUi extends JPanel implements DocumentListener, ActionListener
 			if (choice == JOptionPane.OK_OPTION) {
 				controller.show("LOGIN");
 			}
+			
+			resetFields();
 
 		}
 	}
