@@ -137,7 +137,6 @@ public class LoginUi extends JPanel implements ActionListener {
 		verticalBox.add(loginPanel);
 
 		backgroundPanel.add(verticalBox, new GridBagConstraints());
-	
 	}
 
 	@Override
@@ -145,51 +144,52 @@ public class LoginUi extends JPanel implements ActionListener {
 		String pw = new String(pwField.getPassword()).trim();
 		String nickName = new String(idField.getText()).trim();
 		if (e.getSource() == loginButton) {
-			
-			DB_login(nickName,pw);
-			
+
+			DB_login(nickName, pw);
 		} else if (e.getSource() == signUpButton) {
 
 			controller.show("SIGNUP");
-		}else if(e.getSource() == idField){
-			
-				DB_login(nickName,pw);
-			
-		}else if(e.getSource() == pwField) {
-			
-			DB_login(nickName,pw);
+		} else if (e.getSource() == idField) {
+
+			DB_login(nickName, pw);
+		} else if (e.getSource() == pwField) {
+
+			DB_login(nickName, pw);
+		}
+
+		idField.setText("");
+		pwField.setText("");
 	}
-}
+
 	public void DB_login(String nickName, String pw) {
 
 		Connection conn = JDBCTemplate.getConnection();
 		String sql = "SELECT USER_ID, PASSWORD FROM \"USER\" WHERE NICKNAME= ?";
 
 		try {
-			
-			if(idField.getText().isEmpty()||pwField.getPassword().length==0) {
+
+			if (idField.getText().isEmpty() || pwField.getPassword().length == 0) {
 				error.setText("아이디나 비밀번호를 입력하지 않으셨습니다.");
-			}else if(idField.getText().isEmpty()&&pwField.getPassword().length==0) {
+			} else if (idField.getText().isEmpty() && pwField.getPassword().length == 0) {
 				error.setText("아이디와 비밀번호를 입력하신 후 로그인을 시도하세요.");
-			}else{
-				
-			pstmt = conn.prepareStatement(sql);
-			pstmt.setString(1, nickName);
-			rs = pstmt.executeQuery();
-			
-			
-			if (rs != null && rs.next()) {
-				String dbPw = rs.getString("PASSWORD");
-				if (dbPw.equals(pw)) {
-					int userId = rs.getInt("USER_ID"); // 유저아이디 컬럼명 먼지 확인
-					User user = new User(userId, nickName);
-					controller.loginSuccess(user);
-				} else {
-					error.setText("비밀번호가 일치하지 않습니다. 다시 시도하세요.");
-				}
 			} else {
-				error.setText("등록되지 않은 닉네임입니다. 회원가입 후 이용해주세요.");
-			}
+
+				pstmt = conn.prepareStatement(sql);
+				pstmt.setString(1, nickName);
+				rs = pstmt.executeQuery();
+
+				if (rs != null && rs.next()) {
+					String dbPw = rs.getString("PASSWORD");
+					if (dbPw.equals(pw)) {
+						int userId = rs.getInt("USER_ID"); // 유저아이디 컬럼명 먼지 확인
+						User user = new User(userId, nickName);
+						controller.loginSuccess(user);
+					} else {
+						error.setText("비밀번호가 일치하지 않습니다. 다시 시도하세요.");
+					}
+				} else {
+					error.setText("등록되지 않은 닉네임입니다. 회원가입 후 이용해주세요.");
+				}
 			}
 		} catch (SQLException e1) {
 			e1.printStackTrace();
@@ -204,6 +204,4 @@ public class LoginUi extends JPanel implements ActionListener {
 
 		}
 	}
-	}
-
-
+}

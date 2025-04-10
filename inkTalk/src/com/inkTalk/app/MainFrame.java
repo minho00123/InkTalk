@@ -12,9 +12,9 @@ public class MainFrame extends JFrame {
 	public MainFrame() {
 		AppController controller = new AppController();
 		setContentPane(controller);
-		
+
 		Toolkit kit = Toolkit.getDefaultToolkit();
-		Image img = kit.getImage(getClass().getResource("/images/inkTalk.png"));
+		Image img = kit.getImage(getClass().getResource("/images/InkTalk.png"));
 		setIconImage(img);
 		setSize(1200, 800);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
