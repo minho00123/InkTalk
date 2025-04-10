@@ -9,7 +9,6 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
-import com.inkTalk.domain.Room;
 import com.inkTalk.domain.User;
 import com.inkTalk.ui.Board;
 import com.inkTalk.ui.CreateRoomUi;
