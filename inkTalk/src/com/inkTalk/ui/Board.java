@@ -18,8 +18,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
@@ -58,7 +58,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 	public JButton exit;
 	AppController appController;
 	Canvas canvas;
-	List<Stroke> strokes = new ArrayList<>();
+	List<Stroke> strokes = new CopyOnWriteArrayList<>();
 	Stroke currentStroke = null;
 	JButton thickness;
 	JButton palette;
@@ -180,11 +180,14 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 	}
 
 	private ImageIcon resizeIcon(String path, int width, int height) {
-		String imagePath = "images/" + path;
-		ImageIcon icon = new ImageIcon(imagePath);
-		Image img = icon.getImage().getScaledInstance(width, height, Image.SCALE_SMOOTH);
-
-		return new ImageIcon(img);
+	    java.net.URL imgURL = getClass().getResource("/resources/images/" + path);
+	    if (imgURL == null) {
+	        System.err.println("Image not found: " + path);
+	        return null;
+	    }
+	    ImageIcon icon = new ImageIcon(imgURL);
+	    Image img = icon.getImage().getScaledInstance(width, height, Image.SCALE_SMOOTH);
+	    return new ImageIcon(img);
 	}
 
 	private void startReceivingMessages() {
@@ -193,7 +196,6 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 			@Override
 			public void run() {
 				try {
-					// 로그인한 User객체 보내기
 					out.writeObject(loggedInUser);
 					out.flush();
 

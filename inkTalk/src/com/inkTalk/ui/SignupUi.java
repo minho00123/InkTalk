@@ -48,7 +48,7 @@ public class SignupUi extends JPanel implements DocumentListener, ActionListener
 		this.add(backgroundPanel);
 
 		// 로고 이미지
-		ImageIcon logoIcon = new ImageIcon("images/logo.png"); // 로고 이미지 경로
+		ImageIcon logoIcon = new ImageIcon("images/logo.png"); 
 		JLabel logoLabel = new JLabel(logoIcon);
 		logoLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
@@ -148,7 +148,6 @@ public class SignupUi extends JPanel implements DocumentListener, ActionListener
 
 	}
 
-	// DocumentListener 메소드
 	@Override
 	public void insertUpdate(DocumentEvent e) {
 		validateText();
@@ -196,7 +195,6 @@ public class SignupUi extends JPanel implements DocumentListener, ActionListener
 		return Validation;
 	}
 
-	// 내부 클래스: Placeholder 텍스트 필드
 	static class PlaceholderTextField extends JTextField {
 		private final String placeholder;
 		private boolean showingPlaceholder;
@@ -239,14 +237,13 @@ public class SignupUi extends JPanel implements DocumentListener, ActionListener
 		if (e.getSource() == signupConfirm) {
 			if (validateText()) {
 				Connection conn = JDBCTemplate.getConnection();
-				// 닉네임 중복검사
 				String sql = "SELECT USER_ID FROM \"USER\" WHERE NICKNAME=?";
 				try {
 					pstmt = conn.prepareStatement(sql);
 					pstmt.setString(1, nicknameinput.trim());
 
 					rs = pstmt.executeQuery();
-					if (rs != null && rs.next()) {// 닉네임 존재하는 경우
+					if (rs != null && rs.next()) {
 						nameerror.setText("이미 사용 중인 닉네임입니다. 다른 닉네임을 입력하세요.");
 					} else {
 						int choice = JOptionPane.showConfirmDialog(this, "입력하신 정보로 회원가입 하시겠습니까?", "회원 가입 확인",
