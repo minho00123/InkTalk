@@ -50,7 +50,7 @@ public class SignupUi extends JPanel implements DocumentListener, ActionListener
 		this.add(backgroundPanel);
 
 		// 로고 이미지
-		ImageIcon logoIcon = new ImageIcon("images/logo.png"); 
+		ImageIcon logoIcon = new ImageIcon("src/resources/images/logo.png");
 		JLabel logoLabel = new JLabel(logoIcon);
 		logoLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
@@ -125,7 +125,6 @@ public class SignupUi extends JPanel implements DocumentListener, ActionListener
 		signupConfirm.setPreferredSize(new Dimension(100, totalHeight));
 		signupPanel.add(signupConfirm, gbc);
 		signupConfirm.addActionListener(this);
-		
 
 		signupCancel = new JButton("취소");
 		signupCancel.setBackground(new Color(11, 29, 49));
@@ -137,14 +136,14 @@ public class SignupUi extends JPanel implements DocumentListener, ActionListener
 		signupCancel.setPreferredSize(new Dimension(100, totalHeight));
 		signupPanel.add(signupCancel, gbc);
 		signupCancel.addActionListener(this);
-		
+
 		// 수직 정렬
 		JPanel verticalBox = new JPanel();
 		verticalBox.setLayout(new BoxLayout(verticalBox, BoxLayout.Y_AXIS));
 		verticalBox.setOpaque(false);
 		verticalBox.add(logoLabel);
 		verticalBox.add(signupPanel);
-		
+
 		backgroundPanel.add(verticalBox, new GridBagConstraints());
 
 	}
@@ -287,6 +286,8 @@ public class SignupUi extends JPanel implements DocumentListener, ActionListener
 				controller.show("LOGIN");
 			}
 
+			nameField.setText("");
+			pwordField.setText("");
 		}
 	}
 }
