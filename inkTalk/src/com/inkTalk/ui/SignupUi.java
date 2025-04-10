@@ -164,7 +164,6 @@ public class SignupUi extends JPanel implements DocumentListener, ActionListener
 	}
 
 	public boolean validateText() {
-
 		boolean Validation = true;
 
 		nicknameinput = nameField.getText().trim();
@@ -257,6 +256,9 @@ public class SignupUi extends JPanel implements DocumentListener, ActionListener
 
 							int result = pstmt.executeUpdate();
 							if (result > 0) {
+								resetFields();
+							    nameerror.setText(" ");
+							    pworderror.setText(" ");
 								controller.show("LOGIN");
 							} else {
 								System.out.println("SERVER:회원가입 실패");
@@ -288,5 +290,17 @@ public class SignupUi extends JPanel implements DocumentListener, ActionListener
 			}
 
 		}
+	}
+
+	private void resetFields() {
+	    // 닉네임 필드 초기화
+	    nameField.setText("10자 이내로 작성해주세요. (특수문자 사용 금지)");
+	    nameField.setForeground(Color.GRAY); 
+	    nameField.showingPlaceholder = true;
+
+	    // 비밀번호 필드 초기화
+	    pwordField.setText("숫자로 이루어진 8자로 작성해주세요.");
+	    pwordField.setForeground(Color.GRAY); 
+	    pwordField.showingPlaceholder = true;  
 	}
 }
