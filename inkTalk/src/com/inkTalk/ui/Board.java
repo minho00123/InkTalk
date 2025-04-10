@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Image;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -21,6 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.imageio.ImageIO;
+import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -33,6 +36,7 @@ import javax.swing.JTextPane;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
 import javax.swing.text.BadLocationException;
+import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
@@ -103,9 +107,13 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 
 		JButton[] buttons = { thickness, palette, eraser, clearAll, save, exit };
 		for (JButton button : buttons) {
-			button.setPreferredSize(new Dimension(100, 50));
-			button.setMaximumSize(new Dimension(100, 50));
-			button.setMinimumSize(new Dimension(100, 50));
+			toolBar.add(Box.createVerticalStrut(10));
+			button.setPreferredSize(new Dimension(100, 70));
+			button.setMaximumSize(new Dimension(100, 70));
+			button.setMinimumSize(new Dimension(100, 70));
+			button.setBorder(BorderFactory.createEmptyBorder());
+			button.setRolloverEnabled(true);
+			button.setOpaque(false);
 			button.setFocusable(false);
 			button.addActionListener(this);
 			button.setOpaque(false);
@@ -113,10 +121,12 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 			toolBar.add(button);
 
 			if (button == exit) {
-				toolBar.addSeparator();
-				toolBar.add(button);
+				continue;
 			}
+			toolBar.add(button);
 		}
+		toolBar.add(Box.createVerticalGlue());
+		toolBar.add(exit);
 
 		toolBar.setBackground(new Color(213, 231, 242));
 
@@ -126,16 +136,18 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 		// chatboard UI
 		JPanel chatboard = new JPanel(new BorderLayout());
 		chatboard.setPreferredSize(new Dimension(300, 800));
-
 		JPanel chatPanel = new JPanel(new BorderLayout());
 		chatPanel.setBackground(new Color(209, 229, 240));
+
 		chatArea = new JTextPane();
 		chatArea.setEditable(false);
+		chatArea.setMargin(new Insets(15, 10, 10, 10));
 		JScrollPane scroll = new JScrollPane(chatArea);
 		chatPanel.add(scroll, BorderLayout.CENTER);
 
 		chatArea.setBackground(new Color(209, 229, 240));
 		inputField = new JTextField();
+		inputField.setBorder(null);
 		inputField.addActionListener(this);
 
 		inputField.setBackground(new Color(169, 198, 217));
@@ -232,11 +244,11 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 
 	private void appendMessage(Message msg) {
 		StyledDocument doc = chatArea.getStyledDocument();
-		
+
 		Style gapStyle = doc.getStyle("Gap");
 		if (gapStyle == null) {
-		    gapStyle = doc.addStyle("Gap", null);
-		    StyleConstants.setFontSize(gapStyle, 5); // 아주 작은 글씨
+			gapStyle = doc.addStyle("Gap", null);
+			StyleConstants.setFontSize(gapStyle, 5); // 아주 작은 글씨
 		}
 
 		try {
@@ -266,7 +278,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 					doc.insertString(doc.getLength(), " : ", restStyle);
 					doc.insertString(doc.getLength(), nickname, nickStyle);
 					doc.insertString(doc.getLength(), remaining + "\n", restStyle);
-					doc.insertString(doc.getLength(), "\n", gapStyle); 
+					doc.insertString(doc.getLength(), "\n", gapStyle);
 
 				} else if (content.endsWith("님이 퇴장하셨습니다.")) {
 					// 퇴장 메시지는 그대로 유지
@@ -288,7 +300,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 					doc.insertString(doc.getLength(), " : ", restStyle);
 					doc.insertString(doc.getLength(), nickname, nickStyle);
 					doc.insertString(doc.getLength(), remaining + "\n", restStyle);
-					doc.insertString(doc.getLength(), "\n", gapStyle); 
+					doc.insertString(doc.getLength(), "\n", gapStyle);
 
 				} else {
 					// 그 외 시스템 메시지
@@ -297,7 +309,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 					StyleConstants.setItalic(sysStyle, true);
 
 					doc.insertString(doc.getLength(), "system : " + content + "\n", sysStyle);
-					doc.insertString(doc.getLength(), "\n", gapStyle); 
+					doc.insertString(doc.getLength(), "\n", gapStyle);
 				}
 			} else {
 				// 일반 사용자 메시지
@@ -310,7 +322,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 
 				doc.insertString(doc.getLength(), msg.getNickName(), nickStyle);
 				doc.insertString(doc.getLength(), " : " + msg.getMsg() + "\n", msgStyle);
-				doc.insertString(doc.getLength(), "\n", gapStyle); 
+				doc.insertString(doc.getLength(), "\n", gapStyle);
 			}
 		} catch (BadLocationException e) {
 			e.printStackTrace();

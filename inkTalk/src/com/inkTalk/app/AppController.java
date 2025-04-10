@@ -11,7 +11,6 @@ import javax.swing.SwingUtilities;
 
 import com.inkTalk.domain.User;
 import com.inkTalk.ui.Board;
-import com.inkTalk.ui.CreateRoomUi;
 import com.inkTalk.ui.LoginUi;
 import com.inkTalk.ui.SignupUi;
 
@@ -24,7 +23,6 @@ public class AppController extends JPanel {
 	private LoginUi loginUi;
 	private SignupUi signupUi;
 	private Board board;
-	private CreateRoomUi createRoom;
 
 	public AppController() {
 
@@ -43,11 +41,9 @@ public class AppController extends JPanel {
 		// 각 화면 초기화 및 등록
 		loginUi = new LoginUi(this);
 		signupUi = new SignupUi(this);
-		createRoom = new CreateRoomUi(this);
-
+		
 		viewContainer.add(loginUi, "LOGIN");
 		viewContainer.add(signupUi, "SIGNUP");
-		viewContainer.add(createRoom, "CREATEROOM");
 
 		add(viewContainer, BorderLayout.CENTER);
 
