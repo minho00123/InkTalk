@@ -85,6 +85,7 @@ public class Server implements Runnable {
 			System.out.println("클라이언트 연결이 강제로 끊어졌습니다: " + socket.getInetAddress());
 			broadcast(new Message("system", loggedInUser.getNickname() + "님이 퇴장하셨습니다.", loggedInUser.getColor()));
 			loggedInUsers.remove(loggedInUser);
+			clients.remove(out);
 		} catch (EOFException e) {
 			System.out.println("클라이언트 연결 종료됨: " + socket.getInetAddress());
 		} catch (IOException e) {
