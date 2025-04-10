@@ -38,6 +38,8 @@ public class LoginUi extends JPanel implements ActionListener {
 	JTextField idField;
 	JPasswordField pwField;
 	JLabel error;
+	
+	SignupUi signup;
 
 	public LoginUi(AppController controller) {
 		this.controller = controller;
