@@ -30,12 +30,11 @@ public class Server implements Runnable {
 		this.socket = socket;
 
 		try {
-			// 입력 스트림 및 출력 스트림 초기화
 			out = new ObjectOutputStream(socket.getOutputStream());
 			out.flush();
 			in = new ObjectInputStream(socket.getInputStream());
 
-			// 유저 받아서 중복 확인
+			// 유저 중복 확인
 			Boolean isDup = loggedInUsers.add(loggedInUser = (User) in.readObject());
 			if (isDup) {
 				out.writeBoolean(true);
@@ -46,9 +45,9 @@ public class Server implements Runnable {
 				out.flush();
 				return;
 			}
-			clients.add(out); // 새 클라이언트 추가
+			clients.add(out);
 			for (Stroke stroke : drawData) {
-				out.writeObject(stroke); // 이전 그린 데이터 전송
+				out.writeObject(stroke);
 				out.flush();
 			}
 
@@ -82,12 +81,11 @@ public class Server implements Runnable {
 				}
 			}
 		} catch (SocketException e) {
-			System.out.println("클라이언트 연결이 강제로 끊어졌습니다: " + socket.getInetAddress());
 			broadcast(new Message("system", loggedInUser.getNickname() + "님이 퇴장하셨습니다.", loggedInUser.getColor()));
 			loggedInUsers.remove(loggedInUser);
 			clients.remove(out);
 		} catch (EOFException e) {
-			System.out.println("클라이언트 연결 종료됨: " + socket.getInetAddress());
+			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (ClassNotFoundException e) {
@@ -107,14 +105,12 @@ public class Server implements Runnable {
 	}
 
 	private void broadcast(Object object) {
-		// 모든 클라이언트에게 메시지나 그림 전송
 		synchronized (clients) {
 			for (ObjectOutputStream client : clients) {
 				try {
 					client.writeObject(object);
 					client.flush();
-				} catch (SocketException e) {
-					e.printStackTrace();
+				} catch (SocketException ignored) {
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -129,7 +125,6 @@ public class Server implements Runnable {
 			serverSocket = new ServerSocket(5555);
 			while (true) {
 				Socket socket = serverSocket.accept();
-				System.out.println("클라이언트 접속됨: " + socket.getInetAddress());
 				new Thread(new Server(socket)).start();
 			}
 		} catch (IOException e) {

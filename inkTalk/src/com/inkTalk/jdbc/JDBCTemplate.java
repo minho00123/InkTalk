@@ -20,7 +20,7 @@ public class JDBCTemplate {
 
 				Properties prop = new Properties();
 
-				prop.loadFromXML( new FileInputStream("src/com/inkTalk/jdbc/driver.xml") );
+				prop.loadFromXML( new FileInputStream("src/resources/driver.xml") );
 				
 
 				String driver = prop.getProperty("driver");
@@ -28,11 +28,9 @@ public class JDBCTemplate {
 				String user = prop.getProperty("user");
 				String password = prop.getProperty("password");
 
-				// Oracle JDBC Driver 객체 메모리 로드
 				Class.forName(driver);
 				conn = DriverManager.getConnection(url, user, password);
 
-				// 자동 커밋 비활성화
 				conn.setAutoCommit(false);
 			}
 

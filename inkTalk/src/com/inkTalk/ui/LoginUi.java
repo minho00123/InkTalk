@@ -145,7 +145,6 @@ public class LoginUi extends JPanel implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		String pw = new String(pwField.getPassword()).trim();
 		String nickName = new String(idField.getText()).trim();
-		// 로그인
 		if (e.getSource() == loginButton) {
 			
 			DB_login(nickName,pw);
@@ -163,12 +162,7 @@ public class LoginUi extends JPanel implements ActionListener {
 	}
 }
 	public void DB_login(String nickName, String pw) {
-		
 
-		// jdbc 연결
-		// 1. 닉네임과 비밀번호가 일치하지 않는 경우
-		// 2. 닉네임은 일치하나 비밀번호가 일치하지 않는 경우
-		// 3. 비밀번호는 일치하나 닉네임이 일치하지 않는 경우
 		Connection conn = JDBCTemplate.getConnection();
 		String sql = "SELECT USER_ID, PASSWORD FROM \"USER\" WHERE NICKNAME= ?";
 
@@ -186,7 +180,6 @@ public class LoginUi extends JPanel implements ActionListener {
 			
 			
 			if (rs != null && rs.next()) {
-
 				String dbPw = rs.getString("PASSWORD");
 				if (dbPw.equals(pw)) {
 					int userId = rs.getInt("USER_ID"); // 유저아이디 컬럼명 먼지 확인
@@ -195,7 +188,7 @@ public class LoginUi extends JPanel implements ActionListener {
 				} else {
 					error.setText("비밀번호가 일치하지 않습니다. 다시 시도하세요.");
 				}
-			} else {// 로그인 실패
+			} else {
 				error.setText("등록되지 않은 닉네임입니다. 회원가입 후 이용해주세요.");
 			}
 			}

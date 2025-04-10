@@ -6,6 +6,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
+import java.util.Collections;
 import java.util.List;
 
 import javax.swing.JPanel;
@@ -18,7 +19,7 @@ public class Canvas extends JPanel {
 	List<Stroke> strokes;
 
 	public Canvas(List<Stroke> strokes) {
-		this.strokes = strokes;
+		this.strokes = Collections.synchronizedList(strokes);
 		canvasImage = new BufferedImage(1000, 700, BufferedImage.TYPE_4BYTE_ABGR);
 		graphics2D = canvasImage.createGraphics();
 		graphics2D.setColor(Color.WHITE);
@@ -28,9 +29,11 @@ public class Canvas extends JPanel {
 	@Override
 	protected void paintComponent(Graphics graphics) {
 		super.paintComponent(graphics);
-
-		for (Stroke stroke : strokes) {
-			stroke.draw(graphics);
+		synchronized (strokes) {
+			for (Stroke stroke : strokes) {
+				stroke.draw(graphics);
+			}
+			
 		}
 	}
 

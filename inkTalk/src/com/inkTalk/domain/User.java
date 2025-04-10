@@ -44,12 +44,12 @@ public class User implements Serializable {
 		if (obj == null || getClass() != obj.getClass())
 			return false;
 		User user = (User) obj;
-		return Objects.equals(nickname, user.nickname); // username으로 비교
+		return Objects.equals(nickname, user.nickname); 
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(nickname); // username을 기준으로 해시값 생성
+		return Objects.hash(nickname);
 	}
 
 }
