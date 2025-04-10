@@ -180,7 +180,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 	}
 
 	private ImageIcon resizeIcon(String path, int width, int height) {
-	    java.net.URL imgURL = getClass().getResource("/resources/images/" + path);
+	    java.net.URL imgURL = getClass().getResource("/images/" + path);
 	    if (imgURL == null) {
 	        System.err.println("Image not found: " + path);
 	        return null;
