@@ -51,7 +51,7 @@ public class LoginUi extends JPanel implements ActionListener {
 		backgroundPanel.setPreferredSize(new Dimension(1200, 800));
 
 		// 로고 이미지
-		ImageIcon logoIcon = new ImageIcon("images/logo.png");
+		ImageIcon logoIcon = new ImageIcon("src/resources/images/logo.png");
 		JLabel logoLabel = new JLabel(logoIcon);
 		logoLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 		this.add(backgroundPanel);
@@ -137,8 +137,7 @@ public class LoginUi extends JPanel implements ActionListener {
 		verticalBox.add(loginPanel);
 
 		backgroundPanel.add(verticalBox, new GridBagConstraints());
-		Toolkit kit = Toolkit.getDefaultToolkit();
-		Image img = kit.getImage("images/logoicon.jpg");
+	
 	}
 
 	@Override

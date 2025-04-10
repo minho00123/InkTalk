@@ -1,5 +1,6 @@
 package com.inkTalk.ui;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -40,6 +41,7 @@ public class SignupUi extends JPanel implements DocumentListener, ActionListener
 
 	public SignupUi(AppController controller) {
 		this.controller = controller;
+		this.setLayout(new BorderLayout());
 		this.setPreferredSize(new Dimension(1200, 800));
 
 		JPanel backgroundPanel = new JPanel(new GridBagLayout());
@@ -141,9 +143,8 @@ public class SignupUi extends JPanel implements DocumentListener, ActionListener
 		verticalBox.setLayout(new BoxLayout(verticalBox, BoxLayout.Y_AXIS));
 		verticalBox.setOpaque(false);
 		verticalBox.add(logoLabel);
-		verticalBox.add(Box.createVerticalStrut(30));
 		verticalBox.add(signupPanel);
-
+		
 		backgroundPanel.add(verticalBox, new GridBagConstraints());
 
 	}
