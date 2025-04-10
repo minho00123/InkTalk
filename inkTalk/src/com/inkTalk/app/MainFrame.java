@@ -12,7 +12,7 @@ public class MainFrame extends JFrame {
 	public MainFrame() {
 		AppController controller = new AppController();
 		setContentPane(controller);
-		
+
 		Toolkit kit = Toolkit.getDefaultToolkit();
 		Image img = kit.getImage(getClass().getResource("/images/InkTalk.png"));
 		setIconImage(img);
