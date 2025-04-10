@@ -141,6 +141,7 @@ public class LoginUi extends JPanel implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
+		error.setText("");
 		String pw = new String(pwField.getPassword()).trim();
 		String nickName = new String(idField.getText()).trim();
 		if (e.getSource() == loginButton) {
