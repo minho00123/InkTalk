@@ -244,7 +244,6 @@ public class SignupUi extends JPanel implements DocumentListener, ActionListener
 
 					rs = pstmt.executeQuery();
 					if (rs != null && rs.next()) {
-						System.out.println("HI!");
 						nameerror.setText("이미 사용 중인 닉네임입니다. 다른 닉네임을 입력하세요.");
 					} else {
 						int choice = JOptionPane.showConfirmDialog(this, "입력하신 정보로 회원가입 하시겠습니까?", "회원 가입 확인",
