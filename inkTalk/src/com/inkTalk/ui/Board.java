@@ -18,6 +18,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.text.ParseException;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -31,9 +32,11 @@ import javax.swing.JColorChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.JToolBar;
+import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingUtilities;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.SimpleAttributeSet;
@@ -400,16 +403,29 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 				}
 			}
 		} else if (e.getSource() == thickness) {
-			String input = JOptionPane.showInputDialog(this, "두께를 입력하세요 (1 ~ 20)");
-			try {
-				int thickness = Integer.parseInt(input);
-				currentThickness = Math.max(1, Math.min(20, thickness));
+			SpinnerNumberModel model = new SpinnerNumberModel(3, 1, 20, 1);
+			JSpinner spinner = new JSpinner(model);
 
-				if (currentColor.equals(Color.WHITE)) {
-					currentColor = Color.BLACK;
-				}
-			} catch (NumberFormatException ignored) {
+			int result = JOptionPane.showOptionDialog(
+			    this,
+			    spinner,
+			    "펜 두께를 선택하세요",
+			    JOptionPane.OK_CANCEL_OPTION,
+			    JOptionPane.QUESTION_MESSAGE,
+			    null,
+			    null,
+			    null
+			);
 
+			if (result == JOptionPane.OK_OPTION) {
+			    try {
+			        spinner.commitEdit();  // 텍스트 입력을 수동 적용
+			        int thickness = (int) spinner.getValue();
+			        currentThickness = Math.max(1, Math.min(20, thickness));
+			        currentColor = Color.WHITE;
+			    } catch (ParseException e1) {
+			        JOptionPane.showMessageDialog(this, "숫자를 정확히 입력해주세요 (1 ~ 20)");
+			    }
 			}
 		} else if (e.getSource() == palette) {
 			Color pickedColor = JColorChooser.showDialog(this, "색상 선택", currentColor);
@@ -418,16 +434,31 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 				currentColor = pickedColor;
 			}
 		} else if (e.getSource() == eraser) {
-			try {
-				String input = JOptionPane.showInputDialog(this, "두께를 입력하세요 (1 ~ 20)");
-				int thickness = Integer.parseInt(input);
-				currentThickness = Math.max(1, Math.min(20, thickness));
-				currentColor = Color.WHITE;
-			} catch (NumberFormatException ignored) {
-				ignored.printStackTrace();
+			SpinnerNumberModel model = new SpinnerNumberModel(3, 1, 20, 1);
+			JSpinner spinner = new JSpinner(model);
 
+			int result = JOptionPane.showOptionDialog(
+			    this,
+			    spinner,
+			    "지우개 두께를 선택하세요",
+			    JOptionPane.OK_CANCEL_OPTION,
+			    JOptionPane.QUESTION_MESSAGE,
+			    null,
+			    null,
+			    null
+			);
+
+			if (result == JOptionPane.OK_OPTION) {
+			    try {
+			        spinner.commitEdit();  // 텍스트 입력을 수동 적용
+			        int thickness = (int) spinner.getValue();
+			        currentThickness = Math.max(1, Math.min(20, thickness));
+			        currentColor = Color.WHITE;
+			    } catch (ParseException e1) {
+			        JOptionPane.showMessageDialog(this, "숫자를 정확히 입력해주세요 (1 ~ 20)");
+			    }
 			}
-		} else if (e.getSource() == clearAll) {
+			}else if (e.getSource() == clearAll) {
 			int choice = JOptionPane.showConfirmDialog(this, "전체 그림을 지우시겠습니까?", "전체 삭제", JOptionPane.OK_CANCEL_OPTION);
 
 			if (choice == JOptionPane.OK_OPTION) {
@@ -468,8 +499,8 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 				appController.dispose();
 			}
 		}
+		
 	}
-
 	public void closeConnection() {
 		try {
 			if (out != null) {

@@ -38,6 +38,8 @@ public class SignupUi extends JPanel implements DocumentListener, ActionListener
 	public static JLabel nameerror, pworderror;
 	public String nicknameinput, passwordinput;
 	public static JButton signupConfirm, signupCancel;
+	
+	LoginUi loginui;
 
 	public SignupUi(AppController controller) {
 		this.controller = controller;
@@ -79,6 +81,7 @@ public class SignupUi extends JPanel implements DocumentListener, ActionListener
 		gbc.anchor = GridBagConstraints.WEST;
 		signupPanel.add(nameField, gbc);
 		nameField.getDocument().addDocumentListener(this);
+		nameField.addActionListener(this);
 
 		nameerror = new JLabel(" ");
 		nameerror.setForeground(Color.RED);
@@ -105,7 +108,8 @@ public class SignupUi extends JPanel implements DocumentListener, ActionListener
 		gbc.anchor = GridBagConstraints.WEST;
 		signupPanel.add(pwordField, gbc);
 		pwordField.getDocument().addDocumentListener(this);
-
+		pwordField.addActionListener(this);
+		
 		pworderror = new JLabel(" ");
 		pworderror.setForeground(Color.RED);
 		gbc.gridx = 1;
@@ -179,19 +183,20 @@ public class SignupUi extends JPanel implements DocumentListener, ActionListener
 				nameerror.setText("닉네임은 한글,영어,숫자만 허용됩니다.");
 				Validation = false;
 			}
-		}
+		}else {Validation = false;}
 
 		if (!pwordField.isPlaceholderVisible()) {
 			if (passwordinput.matches("[0-9]{8}")) {
 				pworderror.setText(" ");
 			} else if (passwordinput.isEmpty() || passwordinput.length() != 8) {
-				pworderror.setText("비밀번호는 8글자여야 합니다.");
+				pworderror.setText("비밀번호는 8자리 숫자여야 합니다.");
 				Validation = false;
 			} else {
 				pworderror.setText("비밀번호는 숫자로만 이루어져야 합니다.");
 				Validation = false;
 			}
-		}
+		}else {Validation = false;}
+		
 		return Validation;
 	}
 
@@ -234,60 +239,79 @@ public class SignupUi extends JPanel implements DocumentListener, ActionListener
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
+	
 		if (e.getSource() == signupConfirm) {
-			if (validateText()) {
-				Connection conn = JDBCTemplate.getConnection();
-				String sql = "SELECT USER_ID FROM \"USER\" WHERE NICKNAME=?";
-				try {
-					pstmt = conn.prepareStatement(sql);
-					pstmt.setString(1, nicknameinput.trim());
-
-					rs = pstmt.executeQuery();
-					if (rs != null && rs.next()) {
-						nameerror.setText("이미 사용 중인 닉네임입니다. 다른 닉네임을 입력하세요.");
-					} else {
-						int choice = JOptionPane.showConfirmDialog(this, "입력하신 정보로 회원가입 하시겠습니까?", "회원 가입 확인",
-								JOptionPane.OK_CANCEL_OPTION);
-						if (choice == JOptionPane.OK_OPTION) {
-							sql = "INSERT INTO \"USER\"(USER_ID, NICKNAME, PASSWORD) VALUES(USER_ID_SEQ.NEXTVAL,?,?)";
-							pstmt = conn.prepareStatement(sql);
-							pstmt.setString(1, nameField.getText());
-							pstmt.setString(2, pwordField.getText());
-
-							int result = pstmt.executeUpdate();
-							if (result > 0) {
-								controller.show("LOGIN");
-							} else {
-								System.out.println("SERVER:회원가입 실패");
-							}
-						}
-
-					}
-
-				} catch (SQLException e2) {
-					e2.printStackTrace();
-				} finally {
-					try {
-						conn.close();
-						pstmt.close();
-						rs.close();
-					} catch (SQLException e1) {
-						e1.printStackTrace();
-					}
-				}
-			} else {
-				nameerror.setText("입력값에 오류가 있습니다. 다시 확인하세요.");
-				pworderror.setText("입력값에 오류가 있습니다. 다시 확인하세요.");
-			}
+			signUPvalidation(nicknameinput, passwordinput);
 		} else if (e.getSource() == signupCancel) {// signupUI에서 취소 버튼을 누를 시
 			int choice = JOptionPane.showConfirmDialog(this, "회원 가입을 취소하시겠습니까?", "회원 가입 취소 확인",
 					JOptionPane.OK_CANCEL_OPTION);
 			if (choice == JOptionPane.OK_OPTION) {
+				nameField.setText("");
+				pwordField.setText("");
 				controller.show("LOGIN");
+				
+				
 			}
 
-			nameField.setText("");
-			pwordField.setText("");
+			
+		}else if(e.getSource()==nameField||e.getSource()==pwordField) {
+			signUPvalidation(nicknameinput, passwordinput);
+			
+				
+			}
+		}
+	
+	public void signUPvalidation(String nicknameinput, String passwordinput) {
+		
+		 if (validateText()) {
+			Connection conn = JDBCTemplate.getConnection();
+			String sql = "SELECT USER_ID FROM \"USER\" WHERE NICKNAME=?";
+			try {
+				pstmt = conn.prepareStatement(sql);
+				pstmt.setString(1, nicknameinput.trim());
+
+				rs = pstmt.executeQuery();
+				if (rs != null && rs.next()) {
+					nameerror.setText("이미 사용 중인 닉네임입니다. 다른 닉네임을 입력하세요.");
+				} else {
+					int choice = JOptionPane.showConfirmDialog(this, "입력하신 정보로 회원가입 하시겠습니까?", "회원 가입 확인",
+							JOptionPane.OK_CANCEL_OPTION);
+					if (choice == JOptionPane.OK_OPTION) {
+						sql = "INSERT INTO \"USER\"(USER_ID, NICKNAME, PASSWORD) VALUES(USER_ID_SEQ.NEXTVAL,?,?)";
+						pstmt = conn.prepareStatement(sql);
+						pstmt.setString(1, nameField.getText());
+						pstmt.setString(2, pwordField.getText());
+
+						int result = pstmt.executeUpdate();
+						if (result > 0) {
+							nameField.setText("");
+							pwordField.setText("");
+							controller.show("LOGIN");
+							loginui.idField.setText("");
+							loginui.pwField.setText("");
+							
+						} else {
+							System.out.println("SERVER:회원가입 실패");
+						}
+					}
+
+				}
+
+			} catch (SQLException e2) {
+				e2.printStackTrace();
+			} finally {
+				try {
+					conn.commit();
+					conn.close();
+					pstmt.close();
+					rs.close();
+				} catch (SQLException e1) {
+					e1.printStackTrace();
+				}
+			}
+		} else {
+			nameerror.setText("입력값에 오류가 있습니다. 다시 확인하세요.");
+			pworderror.setText("입력값에 오류가 있습니다. 다시 확인하세요.");
 		}
 	}
 }
