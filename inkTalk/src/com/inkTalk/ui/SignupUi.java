@@ -265,12 +265,15 @@ public class SignupUi extends JPanel implements DocumentListener, ActionListener
 							int result = pstmt.executeUpdate();
 							if (result > 0) {
 								resetFields();
-							    nameerror.setText(" ");
-							    pworderror.setText(" ");
 							    nameField.setText("");
 							    pwordField.setText("");
+							    resetFields();
+							    nameerror.setText(" ");
+							    pworderror.setText(" ");
+
 								controller.show("LOGIN");
 							} else {
+								
 								System.out.println("SERVER:회원가입 실패");
 							}
 						}
@@ -279,8 +282,16 @@ public class SignupUi extends JPanel implements DocumentListener, ActionListener
 
 				} catch (SQLException e2) {
 					e2.printStackTrace();
+	                if (conn != null) {
+	                    try {
+	                        conn.rollback(); // 오류 발생 시 롤백
+	                    } catch (SQLException rollbackEx) {
+	                        rollbackEx.printStackTrace();
+	                    }
+	                }
 				} finally {
 					try {
+						conn.commit();
 						conn.close();
 						pstmt.close();
 						rs.close();
@@ -299,7 +310,7 @@ public class SignupUi extends JPanel implements DocumentListener, ActionListener
 			if (choice == JOptionPane.OK_OPTION) {
 				controller.show("LOGIN");				
 			}
-			
+
 			nameField.setText("");
 			pwordField.setText("");
 			resetFields();

@@ -403,6 +403,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 				}
 			}
 		} else if (e.getSource() == thickness) {
+
 			SpinnerNumberModel model = new SpinnerNumberModel(3, 1, 20, 1);
 			JSpinner spinner = new JSpinner(model);
 
@@ -426,6 +427,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 			    } catch (ParseException e1) {
 			        JOptionPane.showMessageDialog(this, "숫자를 정확히 입력해주세요 (1 ~ 20)");
 			    }
+
 			}
 		} else if (e.getSource() == palette) {
 			Color pickedColor = JColorChooser.showDialog(this, "색상 선택", currentColor);
@@ -434,6 +436,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 				currentColor = pickedColor;
 			}
 		} else if (e.getSource() == eraser) {
+
 			SpinnerNumberModel model = new SpinnerNumberModel(3, 1, 20, 1);
 			JSpinner spinner = new JSpinner(model);
 
