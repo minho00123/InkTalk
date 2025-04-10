@@ -67,7 +67,6 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 	JButton save;
 	Color currentColor = Color.BLACK;
 	int currentThickness = 2;
-	int currentEraserThickness = 5;
 
 	// chatboard related-fields
 	JTextPane chatArea;
@@ -180,14 +179,14 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 	}
 
 	private ImageIcon resizeIcon(String path, int width, int height) {
-	    java.net.URL imgURL = getClass().getResource("/images/" + path);
-	    if (imgURL == null) {
-	        System.err.println("Image not found: " + path);
-	        return null;
-	    }
-	    ImageIcon icon = new ImageIcon(imgURL);
-	    Image img = icon.getImage().getScaledInstance(width, height, Image.SCALE_SMOOTH);
-	    return new ImageIcon(img);
+		java.net.URL imgURL = getClass().getResource("/images/" + path);
+		if (imgURL == null) {
+			System.err.println("Image not found: " + path);
+			return null;
+		}
+		ImageIcon icon = new ImageIcon(imgURL);
+		Image img = icon.getImage().getScaledInstance(width, height, Image.SCALE_SMOOTH);
+		return new ImageIcon(img);
 	}
 
 	private void startReceivingMessages() {
@@ -403,13 +402,14 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 			String input = JOptionPane.showInputDialog(this, "두께를 입력하세요 (1 ~ 20)");
 			try {
 				int thickness = Integer.parseInt(input);
+
 				currentThickness = Math.max(1, Math.min(20, thickness));
 
 				if (currentColor.equals(Color.WHITE)) {
 					currentColor = Color.BLACK;
 				}
 			} catch (NumberFormatException ignored) {
-
+				JOptionPane.showMessageDialog(this, "숫자를 입력해주세요.");
 			}
 		} else if (e.getSource() == palette) {
 			Color pickedColor = JColorChooser.showDialog(this, "색상 선택", currentColor);
@@ -424,8 +424,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 				currentThickness = Math.max(1, Math.min(20, thickness));
 				currentColor = Color.WHITE;
 			} catch (NumberFormatException ignored) {
-				ignored.printStackTrace();
-
+				JOptionPane.showMessageDialog(this, "숫자를 입력해주세요.");
 			}
 		} else if (e.getSource() == clearAll) {
 			int choice = JOptionPane.showConfirmDialog(this, "전체 그림을 지우시겠습니까?", "전체 삭제", JOptionPane.OK_CANCEL_OPTION);
