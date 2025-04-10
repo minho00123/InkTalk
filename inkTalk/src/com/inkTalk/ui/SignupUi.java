@@ -259,6 +259,8 @@ public class SignupUi extends JPanel implements DocumentListener, ActionListener
 								controller.show("LOGIN");
 								nameField.setText("");
 								pwordField.setText("");
+								nameerror.setText("");
+								pworderror.setText("");
 							} else {
 								System.out.println("SERVER:회원가입 실패");
 							}
@@ -290,6 +292,8 @@ public class SignupUi extends JPanel implements DocumentListener, ActionListener
 
 			nameField.setText("");
 			pwordField.setText("");
+			nameerror.setText("");
+			pworderror.setText("");
 		}
 	}
 }
