@@ -423,7 +423,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 			        spinner.commitEdit();  // 텍스트 입력을 수동 적용
 			        int thickness = (int) spinner.getValue();
 			        currentThickness = Math.max(1, Math.min(20, thickness));
-			        currentColor = Color.WHITE;
+			        currentColor = Color.BLACK;
 			    } catch (ParseException e1) {
 			        JOptionPane.showMessageDialog(this, "숫자를 정확히 입력해주세요 (1 ~ 20)");
 			    }
