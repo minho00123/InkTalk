@@ -268,11 +268,12 @@ public class SignupUi extends JPanel implements DocumentListener, ActionListener
 
 							int result = pstmt.executeUpdate();
 							if (result > 0) {
-								nameField.setText("");
-								pwordField.setText("");
-								resetFields();
-								nameerror.setText(" ");
-								pworderror.setText(" ");
+							    nameField.setText("");
+							    pwordField.setText("");
+							    resetFields();
+							    nameerror.setText(" ");
+							    pworderror.setText(" ");
+
 
 								controller.show("LOGIN");
 							} else {

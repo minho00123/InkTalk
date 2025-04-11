@@ -414,6 +414,7 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 					JOptionPane.QUESTION_MESSAGE, null, null, null);
 
 			if (result == JOptionPane.OK_OPTION) {
+
 				try {
 					spinner.commitEdit(); // 텍스트 입력을 수동 적용
 					int thickness = (int) spinner.getValue();
