@@ -29,6 +29,7 @@ import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JColorChooser;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -36,10 +37,8 @@ import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.JToolBar;
-import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingUtilities;
 import javax.swing.text.BadLocationException;
-import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
@@ -70,7 +69,6 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 	JButton save;
 	Color currentColor = Color.BLACK;
 	int currentThickness = 2;
-	int currentEraserThickness = 5;
 
 	// chatboard related-fields
 	JTextPane chatArea;
@@ -183,14 +181,14 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 	}
 
 	private ImageIcon resizeIcon(String path, int width, int height) {
-	    java.net.URL imgURL = getClass().getResource("/images/" + path);
-	    if (imgURL == null) {
-	        System.err.println("Image not found: " + path);
-	        return null;
-	    }
-	    ImageIcon icon = new ImageIcon(imgURL);
-	    Image img = icon.getImage().getScaledInstance(width, height, Image.SCALE_SMOOTH);
-	    return new ImageIcon(img);
+		java.net.URL imgURL = getClass().getResource("/images/" + path);
+		if (imgURL == null) {
+			System.err.println("Image not found: " + path);
+			return null;
+		}
+		ImageIcon icon = new ImageIcon(imgURL);
+		Image img = icon.getImage().getScaledInstance(width, height, Image.SCALE_SMOOTH);
+		return new ImageIcon(img);
 	}
 
 	private void startReceivingMessages() {
@@ -403,30 +401,33 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 				}
 			}
 		} else if (e.getSource() == thickness) {
+			JSpinner spinner = new JSpinner();
 
-			SpinnerNumberModel model = new SpinnerNumberModel(3, 1, 20, 1);
-			JSpinner spinner = new JSpinner(model);
+			JLabel label = new JLabel("1과 20 사이의 숫자를 입력해주세요."); // 안내 메시지
+			JPanel panel = new JPanel();
+			panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+			panel.add(new JLabel("펜 두께를 선택하세요"));
+			panel.add(spinner);
+			panel.add(label);
 
-			int result = JOptionPane.showOptionDialog(
-			    this,
-			    spinner,
-			    "펜 두께를 선택하세요",
-			    JOptionPane.OK_CANCEL_OPTION,
-			    JOptionPane.QUESTION_MESSAGE,
-			    null,
-			    null,
-			    null
-			);
+			int result = JOptionPane.showOptionDialog(this, panel, "펜 두께를 선택하세요", JOptionPane.OK_CANCEL_OPTION,
+					JOptionPane.QUESTION_MESSAGE, null, null, null);
 
 			if (result == JOptionPane.OK_OPTION) {
-			    try {
-			        spinner.commitEdit();  // 텍스트 입력을 수동 적용
-			        int thickness = (int) spinner.getValue();
-			        currentThickness = Math.max(1, Math.min(20, thickness));
-			        currentColor = Color.BLACK;
-			    } catch (ParseException e1) {
-			        JOptionPane.showMessageDialog(this, "숫자를 정확히 입력해주세요 (1 ~ 20)");
-			    }
+
+				try {
+					spinner.commitEdit(); // 텍스트 입력을 수동 적용
+					int thickness = (int) spinner.getValue();
+
+					if (thickness < 1 || thickness > 20) {
+						throw new Exception();
+					} else {
+						currentThickness = thickness;
+						currentColor = Color.BLACK;
+					}
+				} catch (Exception e1) {
+					JOptionPane.showMessageDialog(this, "숫자를 정확히 입력해주세요 (1 ~ 20)");
+				}
 
 			}
 		} else if (e.getSource() == palette) {
@@ -436,32 +437,34 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 				currentColor = pickedColor;
 			}
 		} else if (e.getSource() == eraser) {
+			JSpinner spinner = new JSpinner();
 
-			SpinnerNumberModel model = new SpinnerNumberModel(3, 1, 20, 1);
-			JSpinner spinner = new JSpinner(model);
+			JLabel label = new JLabel("1과 20 사이의 숫자를 입력해주세요.");
+			JPanel panel = new JPanel();
+			panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+			panel.add(new JLabel("지우게 두께를 선택하세요"));
+			panel.add(spinner);
+			panel.add(label);
 
-			int result = JOptionPane.showOptionDialog(
-			    this,
-			    spinner,
-			    "지우개 두께를 선택하세요",
-			    JOptionPane.OK_CANCEL_OPTION,
-			    JOptionPane.QUESTION_MESSAGE,
-			    null,
-			    null,
-			    null
-			);
+			int result = JOptionPane.showOptionDialog(this, panel, "지우개 두께를 선택하세요", JOptionPane.OK_CANCEL_OPTION,
+					JOptionPane.QUESTION_MESSAGE, null, null, null);
 
 			if (result == JOptionPane.OK_OPTION) {
-			    try {
-			        spinner.commitEdit();  // 텍스트 입력을 수동 적용
-			        int thickness = (int) spinner.getValue();
-			        currentThickness = Math.max(1, Math.min(20, thickness));
-			        currentColor = Color.WHITE;
-			    } catch (ParseException e1) {
-			        JOptionPane.showMessageDialog(this, "숫자를 정확히 입력해주세요 (1 ~ 20)");
-			    }
+				try {
+					spinner.commitEdit(); // 텍스트 입력을 수동 적용
+					int thickness = (int) spinner.getValue();
+
+					if (thickness < 1 || thickness > 20) {
+						throw new Exception();
+					} else {
+						currentThickness = thickness;
+						currentColor = Color.WHITE;
+					}
+				} catch (Exception e1) {
+					JOptionPane.showMessageDialog(this, "숫자를 정확히 입력해주세요 (1 ~ 20)");
+				}
 			}
-			}else if (e.getSource() == clearAll) {
+		} else if (e.getSource() == clearAll) {
 			int choice = JOptionPane.showConfirmDialog(this, "전체 그림을 지우시겠습니까?", "전체 삭제", JOptionPane.OK_CANCEL_OPTION);
 
 			if (choice == JOptionPane.OK_OPTION) {
@@ -502,8 +505,9 @@ public class Board extends JPanel implements ActionListener, MouseListener, Mous
 				appController.dispose();
 			}
 		}
-		
+
 	}
+
 	public void closeConnection() {
 		try {
 			if (out != null) {
